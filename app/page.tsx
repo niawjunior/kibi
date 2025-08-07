@@ -1,103 +1,215 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { QrCode, Camera, Printer, BadgeCheck, ArrowRight } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="flex min-h-screen flex-col items-center p-6 md:p-12">
+      <div className="w-full max-w-5xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-3">AI Kiosk Event Registration</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            A seamless registration experience for event visitors using QR codes, camera capture, and Bluetooth printing
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BadgeCheck className="h-5 w-5 text-primary" />
+                Welcome to Event Registration
+              </CardTitle>
+              <CardDescription>
+                Scan your QR code at the kiosk to begin registration
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">
+                This system allows event visitors to quickly register by scanning their QR code,
+                taking a photo, and printing their badge via Bluetooth thermal printer.
+              </p>
+              <p className="mb-4">
+                The registration process is simple and fast, ensuring a smooth check-in experience
+                for all attendees while providing event organizers with accurate attendance tracking.
+              </p>
+              <div className="bg-muted p-4 rounded-lg border border-border mt-4">
+                <h3 className="font-medium mb-2">Key Features:</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>QR code processing via kiosk scanner</li>
+                  <li>Real-time database integration with Supabase</li>
+                  <li>Browser-based camera capture</li>
+                  <li>Bluetooth thermal printer support via RAWBT protocol</li>
+                  <li>Responsive design for various kiosk displays</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2">
+                <QrCode className="h-5 w-5 text-primary" />
+                Sample QR Code
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center pt-4">
+              <div className="w-40 h-40 bg-white p-2 rounded-lg border border-border mb-4">
+                <svg
+                  viewBox="0 0 100 100"
+                  className="w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M0,0 L40,0 L40,40 L0,40 Z" fill="none" stroke="currentColor" strokeWidth="8" />
+                  <path d="M10,10 L30,10 L30,30 L10,30 Z" fill="currentColor" />
+                  
+                  <path d="M60,0 L100,0 L100,40 L60,40 Z" fill="none" stroke="currentColor" strokeWidth="8" />
+                  <path d="M70,10 L90,10 L90,30 L70,30 Z" fill="currentColor" />
+                  
+                  <path d="M0,60 L40,60 L40,100 L0,100 Z" fill="none" stroke="currentColor" strokeWidth="8" />
+                  <path d="M10,70 L30,70 L30,90 L10,90 Z" fill="currentColor" />
+                  
+                  <path d="M60,60 L70,60 L70,70 L60,70 Z" fill="currentColor" />
+                  <path d="M80,60 L90,60 L90,70 L80,70 Z" fill="currentColor" />
+                  <path d="M60,80 L70,80 L70,90 L60,90 Z" fill="currentColor" />
+                  <path d="M80,80 L100,80 L100,100 L80,100 Z" fill="currentColor" />
+                  
+                  <path d="M50,10 L50,40" stroke="currentColor" strokeWidth="4" />
+                  <path d="M50,60 L50,90" stroke="currentColor" strokeWidth="4" />
+                  <path d="M10,50 L40,50" stroke="currentColor" strokeWidth="4" />
+                  <path d="M60,50 L90,50" stroke="currentColor" strokeWidth="4" />
+                </svg>
+              </div>
+              <p className="text-sm text-center text-muted-foreground">
+                Visitors receive QR codes like this via email before the event
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ArrowRight className="h-5 w-5 text-primary" />
+                How It Works
+              </CardTitle>
+              <CardDescription>
+                The registration flow is simple and efficient
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
+                  <div>
+                    <span className="font-medium">Kiosk Scans QR Code</span>
+                    <p className="text-sm text-muted-foreground">Kiosk scans visitor&apos;s QR code and opens the website</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
+                  <div>
+                    <span className="font-medium">Verify Information</span>
+                    <p className="text-sm text-muted-foreground">System retrieves visitor data from Supabase</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
+                  <div>
+                    <span className="font-medium">Take Photo</span>
+                    <p className="text-sm text-muted-foreground">Visitor captures their photo using the kiosk camera</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">4</div>
+                  <div>
+                    <span className="font-medium">Print Badge</span>
+                    <p className="text-sm text-muted-foreground">System prints badge with visitor info and photo</p>
+                  </div>
+                </li>
+              </ol>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Printer className="h-5 w-5 text-primary" />
+                Technical Details
+              </CardTitle>
+              <CardDescription>
+                How the system works behind the scenes
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="bg-muted rounded-md p-2 flex-shrink-0">
+                  <QrCode className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <span className="font-medium">QR Code Processing</span>
+                  <p className="text-sm text-muted-foreground">Kiosk scans QR codes and passes the unique reference ID to our website via URL parameter</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="bg-muted rounded-md p-2 flex-shrink-0">
+                  <Camera className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <span className="font-medium">Camera Integration</span>
+                  <p className="text-sm text-muted-foreground">Uses browser MediaDevices API to access the kiosk camera for photo capture</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="bg-muted rounded-md p-2 flex-shrink-0">
+                  <Printer className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <span className="font-medium">Bluetooth Printing</span>
+                  <p className="text-sm text-muted-foreground">Utilizes RAWBT protocol to send ESC/POS commands to thermal printers</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BadgeCheck className="h-5 w-5 text-primary" />
+              Test Registration
+            </CardTitle>
+            <CardDescription>
+              Use these test links to simulate kiosk QR code scanning
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">
+              For testing purposes, you can use the links below to simulate the kiosk scanning a QR code and opening the browser.
+              Each link represents a different test user in our system, as if the kiosk had scanned their QR code.
+            </p>
+          </CardContent>
+          <CardFooter className="flex flex-wrap gap-4">
+            <Button asChild>
+              <Link href="/register?id=TEST001">Test User 1</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/register?id=TEST002">Test User 2</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/register?id=TEST003">Test User 3</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <footer className="mt-12 text-center text-sm text-muted-foreground">
+          <p>AI Kiosk Event Registration System &copy; {new Date().getFullYear()}</p>
+        </footer>
+      </div>
+    </main>
   );
 }
