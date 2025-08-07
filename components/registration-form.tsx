@@ -40,17 +40,19 @@ type RegistrationStep = "info" | "photo" | "printing" | "complete";
 export function RegistrationForm({ user }: RegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("info");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoBase64, setPhotoBase64] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [printProgress, setPrintProgress] = useState(0);
 
   // Handle photo capture
-  const handlePhotoCapture = (imageData: string) => {
+  const handlePhotoCapture = (imageUrl: string, imageBase64: string) => {
     setIsImageLoading(true);
-    setPhotoUrl(imageData);
+    setPhotoUrl(imageUrl);
+    setPhotoBase64(imageBase64);
     setError(null);
-    
+
     // Safety timeout to ensure loading state doesn't get stuck
     setTimeout(() => {
       setIsImageLoading(false);
@@ -90,14 +92,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             clearInterval(interval);
             try {
               // Generate print data (ESC/POS commands)
-              const printData = generatePrintData(photoUrl, {
-                name: updatedUser.name,
-                last_name: updatedUser.last_name,
-                company: updatedUser.company,
-                position: updatedUser.position,
-                email: updatedUser.email,
-                phone: updatedUser.phone,
-              });
+              const printData = generatePrintData(photoBase64);
 
               // Generate RAWBT URL for Bluetooth printing
               const rawbtUrl = generateRawbtUrl(printData);
@@ -203,14 +198,19 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   <CardHeader className="py-2">
                     <CardTitle className="text-sm">Photo Preview</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-0 flex justify-center items-center" style={{ minHeight: '266px' }}>
+                  <CardContent
+                    className="p-0 flex justify-center items-center"
+                    style={{ minHeight: "266px" }}
+                  >
                     {isImageLoading && (
                       <div className="flex flex-col items-center justify-center p-4">
                         <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
-                        <p className="text-sm text-muted-foreground">Loading image...</p>
+                        <p className="text-sm text-muted-foreground">
+                          Loading image...
+                        </p>
                       </div>
                     )}
-                    <div className={isImageLoading ? 'hidden' : 'block'}>
+                    <div className={isImageLoading ? "hidden" : "block"}>
                       <Image
                         width={200}
                         height={200}

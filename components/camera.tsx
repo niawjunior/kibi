@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { uploadUserPhoto } from "@/lib/db";
 
 interface CameraProps {
-  onCapture: (imageData: string) => void;
+  onCapture: (imageUrl: string, imageBase64: string) => void;
   userRef?: string; // Optional user reference for direct uploads
 }
 
@@ -174,7 +174,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
             const publicUrl = await uploadUserPhoto(imageData, userRef);
             if (publicUrl) {
               // Pass the public URL to the parent component
-              onCapture(publicUrl);
+              onCapture(publicUrl, imageData);
             } else {
               throw new Error("Failed to upload photo");
             }
@@ -182,13 +182,13 @@ export function Camera({ onCapture, userRef }: CameraProps) {
             console.error("Error uploading photo:", err);
             setError("Failed to upload photo. Please try again.");
             // Fall back to base64 if upload fails
-            onCapture(imageData);
+            onCapture(imageData, imageData);
           } finally {
             setIsUploading(false);
           }
         } else {
           // If no userRef, just use the base64 data
-          onCapture(imageData);
+          onCapture(imageData, imageData);
         }
       } catch (err) {
         console.error("Error capturing photo:", err);
