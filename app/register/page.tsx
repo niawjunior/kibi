@@ -36,13 +36,6 @@ function LoadingCard() {
 export default function RegisterPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Event Registration</h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          Complete your registration and get your badge printed
-        </p>
-      </div>
-
       <Suspense fallback={<LoadingCard />}>
         <RegistrationClient />
       </Suspense>

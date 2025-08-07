@@ -11,9 +11,11 @@ export interface User {
   id: string;
   ref: string;
   name: string;
-  email: string;
+  last_name: string;
   company: string;
   position: string;
+  email: string;
+  phone: string;
   event_id: string;
   registered: boolean;
   photo_url?: string;

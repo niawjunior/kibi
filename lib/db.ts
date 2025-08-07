@@ -1,4 +1,5 @@
-import { supabase, User } from './supabase';
+import { supabase, User } from "./supabase";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Get user by reference ID from Supabase
@@ -8,19 +9,19 @@ import { supabase, User } from './supabase';
 export async function getUserByRef(ref: string): Promise<User | null> {
   try {
     const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('ref', ref)
+      .from("users")
+      .select("*")
+      .eq("ref", ref)
       .single();
-    
+
     if (error) {
-      console.error('Error fetching user:', error);
+      console.error("Error fetching user:", error);
       return null;
     }
-    
+
     return data as User;
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
     return null;
   }
 }
@@ -32,29 +33,29 @@ export async function getUserByRef(ref: string): Promise<User | null> {
  * @returns Updated user object or null if failed
  */
 export async function updateUserRegistration(
-  ref: string, 
+  ref: string,
   photoUrl: string
 ): Promise<User | null> {
   try {
     const { data, error } = await supabase
-      .from('users')
-      .update({ 
-        registered: true, 
+      .from("users")
+      .update({
+        registered: true,
         photo_url: photoUrl,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('ref', ref)
+      .eq("ref", ref)
       .select()
       .single();
-    
+
     if (error) {
-      console.error('Error updating user registration:', error);
+      console.error("Error updating user registration:", error);
       return null;
     }
-    
+
     return data as User;
   } catch (error) {
-    console.error('Error updating user registration:', error);
+    console.error("Error updating user registration:", error);
     return null;
   }
 }
@@ -67,18 +68,69 @@ export async function updateUserRegistration(
 export async function getUsersByEvent(eventId: string): Promise<User[]> {
   try {
     const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('event_id', eventId);
-    
+      .from("users")
+      .select("*")
+      .eq("event_id", eventId);
+
     if (error) {
-      console.error('Error fetching users by event:', error);
+      console.error("Error fetching users by event:", error);
       return [];
     }
-    
+
     return data as User[];
   } catch (error) {
-    console.error('Error fetching users by event:', error);
+    console.error("Error fetching users by event:", error);
     return [];
+  }
+}
+
+/**
+ * Upload user photo to Supabase storage and return the public URL
+ * @param base64Image - Base64 encoded image data
+ * @param userRef - User reference ID for filename
+ * @returns Public URL of the uploaded image or null if failed
+ */
+export async function uploadUserPhoto(
+  base64Image: string,
+  userRef: string
+): Promise<string | null> {
+  try {
+    // Remove the data URL prefix to get just the base64 data
+    const base64Data = base64Image.split(",")[1];
+    if (!base64Data) {
+      console.error("Invalid base64 image format");
+      return null;
+    }
+
+    // Convert base64 to binary data
+    const binaryData = Buffer.from(base64Data, "base64");
+
+    // Generate a unique filename with user reference and timestamp
+    const fileExt = "jpg";
+    const fileName = `${userRef}_${uuidv4()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    // Upload to Supabase storage
+    const { data, error } = await supabase.storage
+      .from("photos")
+      .upload(filePath, binaryData, {
+        contentType: "image/jpeg",
+        upsert: true,
+      });
+
+    if (error) {
+      console.error("Error uploading photo to storage:", error);
+      return null;
+    }
+
+    // Get the public URL
+    const { data: publicUrlData } = supabase.storage
+      .from("photos")
+      .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.error("Error uploading photo:", error);
+    return null;
   }
 }

@@ -26,6 +26,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  Loader2,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
@@ -40,13 +41,20 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("info");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [printProgress, setPrintProgress] = useState(0);
 
   // Handle photo capture
   const handlePhotoCapture = (imageData: string) => {
+    setIsImageLoading(true);
     setPhotoUrl(imageData);
     setError(null);
+    
+    // Safety timeout to ensure loading state doesn't get stuck
+    setTimeout(() => {
+      setIsImageLoading(false);
+    }, 2000); // Force loading to end after 2 seconds max
   };
 
   // Handle registration submission
@@ -60,7 +68,8 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     setError(null);
 
     try {
-      // Update user registration status with photo URL
+      // The photoUrl is now either a Supabase storage URL or base64 data
+      // updateUserRegistration will save this URL to the database
       const updatedUser = await updateUserRegistration(user.ref, photoUrl);
 
       if (!updatedUser) {
@@ -83,8 +92,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
               // Generate print data (ESC/POS commands)
               const printData = generatePrintData(photoUrl, {
                 name: updatedUser.name,
+                last_name: updatedUser.last_name,
                 company: updatedUser.company,
                 position: updatedUser.position,
+                email: updatedUser.email,
+                phone: updatedUser.phone,
               });
 
               // Generate RAWBT URL for Bluetooth printing
@@ -182,21 +194,37 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Camera onCapture={handlePhotoCapture} />
+              <div className="p-4">
+                <Camera onCapture={handlePhotoCapture} userRef={user.ref} />
+              </div>
 
               {photoUrl && (
                 <Card className="overflow-hidden border border-muted">
                   <CardHeader className="py-2">
                     <CardTitle className="text-sm">Photo Preview</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-0 flex justify-center">
-                    <Image
-                      width={200}
-                      height={200}
-                      src={photoUrl}
-                      alt="Captured photo"
-                      className="w-full max-w-[200px] aspect-[3/4] object-cover"
-                    />
+                  <CardContent className="p-0 flex justify-center items-center" style={{ minHeight: '266px' }}>
+                    {isImageLoading && (
+                      <div className="flex flex-col items-center justify-center p-4">
+                        <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
+                        <p className="text-sm text-muted-foreground">Loading image...</p>
+                      </div>
+                    )}
+                    <div className={isImageLoading ? 'hidden' : 'block'}>
+                      <Image
+                        width={200}
+                        height={200}
+                        src={photoUrl}
+                        alt="Captured photo"
+                        priority
+                        className="w-full max-w-[200px] aspect-[3/4] object-cover"
+                        onLoadingComplete={() => setIsImageLoading(false)}
+                        onError={() => {
+                          setIsImageLoading(false);
+                          setError("Failed to load image. Please try again.");
+                        }}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -255,46 +283,16 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center py-8 space-y-6">
               <div className="text-center">
-                <div className="relative w-24 h-24 mx-auto mb-4">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Printer className="h-10 w-10 text-primary animate-pulse" />
-                  </div>
-                  <svg
-                    className="animate-spin-slow w-24 h-24"
-                    viewBox="0 0 100 100"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                      fill="none"
-                      d={`M 50 5 A 45 45 0 0 1 ${
-                        50 + 45 * Math.sin((2 * Math.PI * printProgress) / 100)
-                      } ${
-                        50 - 45 * Math.cos((2 * Math.PI * printProgress) / 100)
-                      }`}
-                    />
-                  </svg>
+                <div className="mb-6 flex justify-center">
+                  <Loader2 className="h-16 w-16 animate-spin text-primary" />
                 </div>
                 <p className="text-lg font-medium mb-2">
-                  Printing in progress...
+                  Printing in progress... {printProgress}%
                 </p>
                 <p className="text-sm text-muted-foreground mb-4">
                   Your badge will be ready shortly
                 </p>
-                <Progress value={printProgress} className="h-2 w-48 mx-auto" />
-                <p className="text-sm mt-2">{printProgress}%</p>
+                <Progress value={printProgress} className="h-2 w-64 mx-auto" />
               </div>
             </CardContent>
           </>

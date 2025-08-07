@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { User } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building, Mail, Briefcase, Tag, Calendar, UserCheck } from 'lucide-react';
+import { Building, Mail, Briefcase, Tag, Phone, UserCheck } from 'lucide-react';
 
 interface UserProfileProps {
   user: User;
@@ -18,10 +18,10 @@ export function UserProfile({ user, photoUrl }: UserProfileProps) {
       <div className="flex justify-center">
         <Avatar className="h-24 w-24 border-2 border-primary">
           {photoUrl ? (
-            <AvatarImage src={photoUrl} alt={user.name} />
+            <AvatarImage src={photoUrl} alt={`${user.name} ${user.last_name}`} />
           ) : (
             <AvatarFallback className="text-2xl">
-              {user.name.split(' ').map(n => n[0]).join('')}
+              {user.name[0]}{user.last_name[0]}
             </AvatarFallback>
           )}
         </Avatar>
@@ -29,7 +29,7 @@ export function UserProfile({ user, photoUrl }: UserProfileProps) {
       
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl">{user.name}</CardTitle>
+          <CardTitle className="text-xl">{user.name} {user.last_name}</CardTitle>
           <CardDescription>{user.position} at {user.company}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -50,13 +50,13 @@ export function UserProfile({ user, photoUrl }: UserProfileProps) {
             </div>
             
             <div className="flex items-center">
-              <Tag className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="text-sm font-mono">{user.ref}</span>
+              <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span className="text-sm">{user.phone}</span>
             </div>
             
             <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="text-sm">{user.event_id}</span>
+              <Tag className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span className="text-sm font-mono">{user.ref}</span>
             </div>
           </div>
         </CardContent>

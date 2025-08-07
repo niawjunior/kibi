@@ -40,7 +40,7 @@ function textToHex(text: string): string {
  */
 export function prepareImageForPrinting(
   imageBase64: string,
-  userData: { name: string; company: string; position: string }
+  userData: { name: string; last_name: string; company: string; position: string; email: string; phone: string }
 ): string {
   // In a real implementation, this would convert the image to ESC/POS format
   // using a library like escpos-image or node-thermal-printer
@@ -53,7 +53,7 @@ export function prepareImageForPrinting(
   
   // Center align and set large text size for name
   commands += CENTER + TEXT_LARGE + BOLD_ON;
-  commands += textToHex(userData.name);
+  commands += textToHex(`${userData.name} ${userData.last_name}`);
   commands += LINE_FEED + LINE_FEED;
   
   // Normal size for company and position
@@ -61,6 +61,12 @@ export function prepareImageForPrinting(
   commands += textToHex(userData.company);
   commands += LINE_FEED;
   commands += textToHex(userData.position);
+  commands += LINE_FEED;
+  
+  // Contact information
+  commands += textToHex(userData.email);
+  commands += LINE_FEED;
+  commands += textToHex(userData.phone);
   commands += LINE_FEED + LINE_FEED;
   
   // In a real implementation, we would convert and add the image here

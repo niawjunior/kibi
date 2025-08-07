@@ -64,65 +64,73 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  /* IIG Dark Blue */
+  --primary: oklch(0.15 0.05 265);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  /* White */
+  --secondary: oklch(0.985 0 0);
+  --secondary-foreground: oklch(0.15 0.05 265);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Medium blue */
+  --accent: oklch(0.3 0.1 265);
+  --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --ring: oklch(0.15 0.05 265);
+  /* Chart colors matching IIG logo */
+  --chart-1: oklch(0.15 0.05 265); /* Dark blue */
+  --chart-2: oklch(0.3 0.1 265); /* Medium blue */
+  --chart-3: oklch(0.985 0 0); /* White */
+  --chart-4: oklch(0.2 0.07 265); /* Slightly lighter blue */
+  --chart-5: oklch(0.25 0.08 265); /* Another blue shade */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: oklch(0.15 0.05 265); /* Dark blue */
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-accent: oklch(0.3 0.1 265); /* Medium blue */
+  --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --background: oklch(0.15 0.05 265); /* IIG Dark blue background */
+  --foreground: oklch(0.985 0 0); /* White text */
+  --card: oklch(0.18 0.05 265); /* Slightly lighter dark blue */
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.18 0.05 265);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  /* White for primary elements */
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.15 0.05 265);
+  /* Medium blue */
+  --secondary: oklch(0.3 0.1 265);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --muted: oklch(0.22 0.05 265);
+  --muted-foreground: oklch(0.8 0 0);
+  /* Lighter blue */
+  --accent: oklch(0.25 0.08 265);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  --ring: oklch(0.985 0 0 / 50%);
+  /* Chart colors matching IIG logo */
+  --chart-1: oklch(0.985 0 0); /* White */
+  --chart-2: oklch(0.3 0.1 265); /* Medium blue */
+  --chart-3: oklch(0.25 0.08 265); /* Lighter blue */
+  --chart-4: oklch(0.2 0.07 265); /* Another blue shade */
+  --chart-5: oklch(0.15 0.05 265); /* Dark blue */
+  --sidebar: oklch(0.18 0.05 265); /* Slightly lighter dark blue */
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-primary: oklch(0.985 0 0); /* White */
+  --sidebar-primary-foreground: oklch(0.15 0.05 265);
+  --sidebar-accent: oklch(0.25 0.08 265); /* Lighter blue */
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.985 0 0 / 50%);
 }
 
 @layer base {
