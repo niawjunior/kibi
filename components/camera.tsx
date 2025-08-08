@@ -275,7 +275,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
       {/* Hidden canvas for capturing photos */}
       <canvas ref={canvasRef} className="hidden" />
 
-      <div className="flex space-x-4 w-full justify-center">
+      <div className="flex space-x-2 w-full justify-center">
         {isCameraActive && (
           <>
             <Button
@@ -321,7 +321,6 @@ export function Camera({ onCapture, userRef }: CameraProps) {
               size="icon"
               title={mirrored ? "Disable mirror mode" : "Enable mirror mode"}
               disabled={isUploading}
-              className="border-primary/30 hover:bg-primary/10 text-primary"
             >
               <ArrowRightLeft />
             </Button>

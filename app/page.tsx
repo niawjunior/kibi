@@ -25,7 +25,7 @@ export default function Home() {
         </div>
 
         <div className="mt-8 mb-12 flex justify-center">
-          <Button asChild variant="outline" className="bg-primary/10 ">
+          <Button asChild variant="default" color="primary" className="">
             <Link href="/generate" className="flex items-center gap-2">
               <QrCode className="h-4 w-4" />
               Generate New Visitor QR Code
