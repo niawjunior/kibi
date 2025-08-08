@@ -103,7 +103,7 @@ export default function GenerateQRPage() {
       </div>
 
       {!qrCodeData ? (
-        <Card className="max-w-md mx-auto">
+        <Card className="max-w-lg mx-auto">
           <CardHeader>
             <CardTitle>Visitor Information</CardTitle>
           </CardHeader>
@@ -226,7 +226,7 @@ export default function GenerateQRPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="max-w-md mx-auto">
+        <Card className="max-w-lg mx-auto">
           <CardHeader>
             <CardTitle className="text-center">Your QR Code</CardTitle>
           </CardHeader>

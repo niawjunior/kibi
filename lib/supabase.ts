@@ -31,4 +31,5 @@ export interface User {
   event_id: string;
   registered: boolean;
   photo_url?: string;
+  badge_url?: string;
 }

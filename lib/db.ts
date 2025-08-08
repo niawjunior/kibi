@@ -30,20 +30,34 @@ export async function getUserByRef(ref: string): Promise<User | null> {
  * Update user registration status and photo URL in Supabase
  * @param ref - Unique reference ID for the user
  * @param photoUrl - URL or base64 data of the user's photo
+ * @param badgeUrl - Optional URL of the user's badge image
  * @returns Updated user object or null if failed
  */
 export async function updateUserRegistration(
   ref: string,
-  photoUrl: string
+  photoUrl: string,
+  badgeUrl?: string
 ): Promise<User | null> {
   try {
+    const updateData: {
+      registered: boolean;
+      photo_url: string;
+      badge_url?: string;
+      updated_at: string;
+    } = {
+      registered: true,
+      photo_url: photoUrl,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Add badge_url if provided
+    if (badgeUrl) {
+      updateData.badge_url = badgeUrl;
+    }
+
     const { data, error } = await supabase
       .from("users")
-      .update({
-        registered: true,
-        photo_url: photoUrl,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("ref", ref)
       .select()
       .single();
@@ -174,6 +188,57 @@ export async function uploadUserPhoto(
     return publicUrlData.publicUrl;
   } catch (error) {
     console.error("Error uploading photo:", error);
+    return null;
+  }
+}
+
+/**
+ * Upload badge image to Supabase storage and return the public URL
+ * @param base64Image - Base64 encoded image data
+ * @param userRef - User reference ID for filename
+ * @returns Public URL of the uploaded image or null if failed
+ */
+export async function uploadBadgeImage(
+  base64Image: string,
+  userRef: string
+): Promise<string | null> {
+  try {
+    // Remove the data URL prefix to get just the base64 data
+    const base64Data = base64Image.split(",")[1];
+    if (!base64Data) {
+      console.error("Invalid base64 image format");
+      return null;
+    }
+
+    // Convert base64 to binary data
+    const binaryData = Buffer.from(base64Data, "base64");
+
+    // Generate a unique filename with user reference and timestamp
+    const fileExt = "png";
+    const fileName = `badge_${userRef}_${uuidv4()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    // Upload to Supabase storage
+    const { error } = await supabase.storage
+      .from("badges")
+      .upload(filePath, binaryData, {
+        contentType: "image/png",
+        upsert: true,
+      });
+
+    if (error) {
+      console.error("Error uploading badge to storage:", error);
+      return null;
+    }
+
+    // Get the public URL
+    const { data: publicUrlData } = supabase.storage
+      .from("badges")
+      .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    console.error("Error uploading badge:", error);
     return null;
   }
 }

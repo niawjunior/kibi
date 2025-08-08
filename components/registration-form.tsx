@@ -1,11 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { User } from "@/lib/supabase";
 import { UserProfile } from "./user-profile";
 import { Camera } from "./camera";
 import { CameraDebug } from "./camera-debug";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  Building,
+  Briefcase,
+  CheckCircle,
+  Loader2,
+  Mail,
+  Phone,
+  Printer,
+  Tag,
+  User as UserIcon,
+  Eye,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -14,49 +35,98 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { updateUserRegistration } from "@/lib/db";
+import { updateUserRegistration, uploadBadgeImage, uploadUserPhoto } from "@/lib/db";
+import { generateBadgePreview } from "@/lib/badge";
 import {
   prepareImageForPrinting as generatePrintData,
   generateRawBtUrl as generateRawbtUrl,
 } from "@/lib/printer";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  CheckCircle,
-  Printer,
-  ArrowLeft,
-  ArrowRight,
-  BadgeCheck,
-  Loader2,
-} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import Image from "next/image";
 
 interface RegistrationFormProps {
   user: User;
 }
 
-type RegistrationStep = "info" | "photo" | "printing" | "complete";
+type RegistrationStep = "info" | "photo" | "preview" | "printing" | "complete";
 
 export function RegistrationForm({ user }: RegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("info");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoBase64, setPhotoBase64] = useState<string>("");
+  const [badgePreviewUrl, setBadgePreviewUrl] = useState<string | null>(null);
+  const [isBadgeLoading, setIsBadgeLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [printProgress, setPrintProgress] = useState(0);
 
   // Handle photo capture
-  const handlePhotoCapture = (imageUrl: string, imageBase64: string) => {
+  const handlePhotoCapture = async (imageUrl: string, imageBase64: string) => {
     setIsImageLoading(true);
-    setPhotoUrl(imageUrl);
-    setPhotoBase64(imageBase64);
+    setPhotoBase64(imageBase64); // Keep base64 for printing
     setError(null);
 
-    // Safety timeout to ensure loading state doesn't get stuck
-    setTimeout(() => {
+    try {
+      if (user && user.ref) {
+        // Upload the photo to storage and get public URL
+        const publicUrl = await uploadUserPhoto(imageBase64, user.ref);
+        if (publicUrl) {
+          setPhotoUrl(publicUrl);
+          // After successful photo upload, proceed to generate badge preview
+          // handleGenerateBadgePreview(publicUrl);
+        } else {
+          setError("Failed to upload photo. Please try again.");
+          setPhotoUrl(imageUrl); // Fallback to local URL
+        }
+      } else {
+        setPhotoUrl(imageUrl); // Fallback if no user ref available
+      }
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      setError("Failed to upload photo. Please try again.");
+      setPhotoUrl(imageUrl); // Fallback to local URL
+    } finally {
       setIsImageLoading(false);
-    }, 2000); // Force loading to end after 2 seconds max
+    }
+  };
+
+  // Generate badge preview
+  const handleGenerateBadgePreview = async (imageUrl?: string) => {
+    const photoToUse = imageUrl || photoUrl;
+
+    if (!photoToUse || !user) {
+      setError("Photo is required for badge preview");
+      return;
+    }
+
+    setIsBadgeLoading(true);
+    setError(null);
+
+    try {
+      // Use a placeholder background image URL for now
+      // In a real implementation, you would have a badge template stored in your assets
+      const backgroundImageUrl = "/badge-template.png";
+
+      // Generate badge preview using OpenAI API
+      const badgeBase64 = await generateBadgePreview(
+        backgroundImageUrl,
+        photoToUse,
+        `${user.name} ${user.last_name}`
+      );
+
+      if (badgeBase64) {
+        // Convert base64 to data URL for display
+        setBadgePreviewUrl(`data:image/png;base64,${badgeBase64}`);
+        setCurrentStep("preview");
+      } else {
+        setError("Failed to generate badge preview. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error generating badge preview:", error);
+      setError("Failed to generate badge preview. Please try again.");
+    } finally {
+      setIsBadgeLoading(false);
+    }
   };
 
   // Handle registration submission
@@ -70,9 +140,20 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     setError(null);
 
     try {
+      // Upload badge image to storage if we have a badge preview
+      let badgeUrl: string | undefined = undefined;
+      if (badgePreviewUrl) {
+        const uploadedBadgeUrl = await uploadBadgeImage(badgePreviewUrl, user.ref);
+        if (uploadedBadgeUrl) {
+          badgeUrl = uploadedBadgeUrl;
+        } else {
+          console.warn("Failed to upload badge image, continuing with registration");
+        }
+      }
+
       // The photoUrl is now either a Supabase storage URL or base64 data
       // updateUserRegistration will save this URL to the database
-      const updatedUser = await updateUserRegistration(user.ref, photoUrl);
+      const updatedUser = await updateUserRegistration(user.ref, photoUrl, badgeUrl);
 
       if (!updatedUser) {
         throw new Error("Failed to update registration status.");
@@ -124,8 +205,9 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     const steps: Record<RegistrationStep, number> = {
       info: 1,
       photo: 2,
-      printing: 3,
-      complete: 4,
+      preview: 3,
+      printing: 4,
+      complete: 5,
     };
     return steps[step];
   };
@@ -133,7 +215,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   // Render step indicator
   const renderStepIndicator = () => {
     const currentStepNumber = getStepNumber(currentStep);
-    const totalSteps = 4;
+    const totalSteps = 5;
 
     return (
       <div className="px-6 pt-6">
@@ -160,20 +242,26 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
         return (
           <>
             <CardHeader>
-              <CardTitle>Verify Your Information</CardTitle>
+              <CardTitle>Visitor Information</CardTitle>
               <CardDescription>
-                Please confirm your details before proceeding
+                Please verify your information below
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <UserProfile user={user} />
+            <CardContent className="space-y-4">
+              <UserProfile user={user} photoUrl={photoUrl || undefined} />
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
             </CardContent>
             <CardFooter>
               <Button
                 onClick={() => setCurrentStep("photo")}
                 className="w-full"
               >
-                Confirm & Continue <ArrowRight className="ml-2 h-4 w-4" />
+                Continue <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardFooter>
           </>
@@ -183,51 +271,68 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
         return (
           <>
             <CardHeader>
-              <CardTitle>Take Your Photo</CardTitle>
+              <CardTitle>Take a Photo</CardTitle>
               <CardDescription>
-                This will be used on your event badge
+                Please take a photo for your badge
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4">
-                <Camera onCapture={handlePhotoCapture} userRef={user.ref} />
-              </div>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Camera on the left */}
+                <div className="rounded-lg overflow-hidden border border-muted md:w-1/2">
+                  <Card>
+                    <CardContent className="p-0 px-2">
+                      <Camera onCapture={handlePhotoCapture} />
+                    </CardContent>
+                  </Card>
+                </div>
 
-              {photoUrl && (
-                <Card className="overflow-hidden border border-muted">
-                  <CardHeader className="py-2">
-                    <CardTitle className="text-sm">Photo Preview</CardTitle>
-                  </CardHeader>
-                  <CardContent
-                    className="p-0 flex justify-center items-center"
-                    style={{ minHeight: "266px" }}
-                  >
-                    {isImageLoading && (
-                      <div className="flex flex-col items-center justify-center p-4">
-                        <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
-                        <p className="text-sm text-muted-foreground">
-                          Loading image...
-                        </p>
-                      </div>
-                    )}
-                    <div className={isImageLoading ? "hidden" : "block"}>
-                      <Image
-                        width={200}
-                        height={200}
-                        src={photoUrl}
-                        alt="Captured photo"
-                        priority
-                        className="w-full max-w-[200px] aspect-[3/4] object-cover"
-                        onLoadingComplete={() => setIsImageLoading(false)}
-                        onError={() => {
-                          setIsImageLoading(false);
-                          setError("Failed to load image. Please try again.");
-                        }}
-                      />
+                {/* Preview on the right */}
+                <div className="md:w-1/2">
+                  {photoUrl ? (
+                    <Card className="overflow-hidden border border-muted h-full">
+                      <CardContent className="p-0 flex justify-center items-center min-h-[270px]">
+                        {isImageLoading && (
+                          <div className="flex flex-col items-center justify-center p-4">
+                            <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
+                            <p className="text-sm text-muted-foreground">
+                              Loading image...
+                            </p>
+                          </div>
+                        )}
+                        <div className={isImageLoading ? "hidden" : "block"}>
+                          <Image
+                            width={200}
+                            height={200}
+                            src={photoUrl}
+                            alt="Captured photo"
+                            priority
+                            className="w-full max-w-[200px] aspect-[3/4] object-cover"
+                            onLoadingComplete={() => setIsImageLoading(false)}
+                            onError={() => {
+                              setIsImageLoading(false);
+                              setError(
+                                "Failed to load image. Please try again."
+                              );
+                            }}
+                          />
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-center h-full">
+                        <CardDescription className="text-sm">
+                          Photo Preview
+                        </CardDescription>
+                      </CardFooter>
+                    </Card>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg h-full">
+                      <p className="text-sm text-muted-foreground text-center">
+                        Take a photo using the camera on the left
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-              )}
+                  )}
+                </div>
+              </div>
 
               {error && (
                 <Alert variant="destructive">
@@ -247,26 +352,94 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             </CardContent>
             <CardFooter className="flex flex-col space-y-3">
               <Button
-                onClick={handleRegister}
-                disabled={!photoUrl || isLoading}
+                onClick={() => handleGenerateBadgePreview()}
+                disabled={!photoUrl || isImageLoading || isBadgeLoading}
                 className="w-full"
               >
-                {isLoading ? (
-                  "Processing..."
+                {isBadgeLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Badge Preview...
+                  </>
                 ) : (
                   <>
-                    Register & Print Badge{" "}
-                    <BadgeCheck className="ml-2 h-4 w-4" />
+                    Preview Badge <Eye className="ml-2 h-4 w-4" />
                   </>
                 )}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep("info")}
-                disabled={isLoading}
+                disabled={isImageLoading || isBadgeLoading}
                 className="w-full"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+            </CardFooter>
+          </>
+        );
+
+      case "preview":
+        return (
+          <>
+            <CardHeader>
+              <CardTitle>Badge Preview</CardTitle>
+              <CardDescription>
+                Review your badge before printing
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {badgePreviewUrl ? (
+                <div className="flex justify-center">
+                  <Card className="overflow-hidden border border-muted w-full max-w-sm">
+                    <CardContent className="p-0 flex justify-center items-center">
+                      <Image
+                        width={400}
+                        height={300}
+                        src={badgePreviewUrl}
+                        alt="Badge Preview"
+                        priority
+                        className="w-full object-contain"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-8">
+                  <Loader2 className="h-12 w-12 animate-spin mb-4 text-primary" />
+                  <p className="text-lg text-muted-foreground">
+                    Generating badge preview...
+                  </p>
+                </div>
+              )}
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-3">
+              <Button
+                onClick={handleRegister}
+                disabled={!badgePreviewUrl || isLoading}
+                className="w-full"
+              >
+                {isLoading ? (
+                  "Processing..."
+                ) : (
+                  <>
+                    Print Badge <Printer className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep("photo")}
+                disabled={isLoading}
+                className="w-full"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Photo
               </Button>
             </CardFooter>
           </>
@@ -335,7 +508,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-md">
+    <Card className="w-full max-w-lg mx-auto shadow-md">
       {renderStepIndicator()}
       {renderStepContent()}
     </Card>

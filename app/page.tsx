@@ -276,10 +276,10 @@ export default function Home() {
             </p>
           </CardContent>
           <CardFooter className="flex flex-wrap gap-4">
-            <Button asChild>
+            <Button asChild variant="default">
               <Link href="/register?id=TEST001">Test User 1</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="default">
               <Link href="/register?id=TEST002">Test User 2</Link>
             </Button>
           </CardFooter>

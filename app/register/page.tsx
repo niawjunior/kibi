@@ -12,7 +12,7 @@ import RegistrationClient from "./registration-client";
 // Loading component for Suspense fallback
 function LoadingCard() {
   return (
-    <Card className="w-full max-w-md mx-auto shadow-md">
+    <Card className="w-full max-w-lg mx-auto shadow-md">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <QrCode className="h-5 w-5 text-primary" />
