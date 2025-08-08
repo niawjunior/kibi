@@ -90,6 +90,49 @@ export async function getUsersByEvent(eventId: string): Promise<User[]> {
  * @param userRef - User reference ID for filename
  * @returns Public URL of the uploaded image or null if failed
  */
+/**
+ * Create a new visitor in Supabase
+ * @param visitorData - Visitor information to save
+ * @returns Created visitor object or null if failed
+ */
+export async function createVisitor(visitorData: {
+  id: string;
+  ref: string;
+  name: string;
+  last_name: string;
+  company: string;
+  position: string;
+  email: string;
+  phone: string;
+  event_id: string;
+  registered: boolean;
+  photo_url: string | null;
+}): Promise<User | null> {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .insert([
+        {
+          ...visitorData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating visitor:", error);
+      return null;
+    }
+
+    return data as User;
+  } catch (error) {
+    console.error("Error creating visitor:", error);
+    return null;
+  }
+}
+
 export async function uploadUserPhoto(
   base64Image: string,
   userRef: string

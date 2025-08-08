@@ -24,6 +24,15 @@ export default function Home() {
           </p>
         </div>
 
+        <div className="mt-8 mb-12 flex justify-center">
+          <Button asChild variant="outline" className="bg-primary/10 ">
+            <Link href="/generate" className="flex items-center gap-2">
+              <QrCode className="h-4 w-4" />
+              Generate New Visitor QR Code
+            </Link>
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Card className="md:col-span-2">
             <CardHeader>
