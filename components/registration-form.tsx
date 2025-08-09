@@ -368,9 +368,9 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             <CardContent className="space-y-4">
               <div className="flex flex-col md:flex-row gap-4">
                 {/* Camera on the left */}
-                <div className="rounded-lg overflow-hidden border border-muted md:w-1/2">
-                  <Card>
-                    <CardContent className="p-0 px-2">
+                <div className="md:w-1/2">
+                  <Card className="">
+                    <CardContent className="p-0 px-2 min-h-[370px]">
                       <Camera onCapture={handlePhotoCapture} />
                     </CardContent>
                   </Card>
@@ -379,8 +379,8 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 {/* Preview on the right */}
                 <div className="md:w-1/2">
                   {photoUrl ? (
-                    <Card className="overflow-hidden border border-muted h-full">
-                      <CardContent className="p-0 flex justify-center items-center min-h-[270px]">
+                    <Card className="">
+                      <CardContent className="p-0 px-2 min-h-[300px]">
                         {isImageLoading && (
                           <div className="flex flex-col items-center justify-center p-4">
                             <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
@@ -392,11 +392,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                         <div className={isImageLoading ? "hidden" : "block"}>
                           <Image
                             width={200}
-                            height={200}
+                            height={300}
                             src={photoUrl}
                             alt="Captured photo"
                             priority
-                            className="w-full max-w-[200px] aspect-[3/4] object-cover"
+                            className="w-full  aspect-[3/4] h-[300px] object-cover"
                             onLoadingComplete={() => setIsImageLoading(false)}
                             onError={() => {
                               setIsImageLoading(false);
@@ -407,7 +407,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                           />
                         </div>
                       </CardContent>
-                      <CardFooter className="flex justify-center h-full">
+                      <CardFooter className="flex justify-center h-[45px]">
                         <CardDescription className="text-sm">
                           {user.registered && user.photo_url === photoUrl
                             ? "Existing Photo"
@@ -451,7 +451,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   <div
                     className={`border-[4px] rounded-full  ${
                       selectedAvatarStyle === "photo-shoot"
-                        ? "border-blue-500"
+                        ? "border-secondary"
                         : ""
                     }`}
                   >

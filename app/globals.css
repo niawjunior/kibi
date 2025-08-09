@@ -68,29 +68,29 @@
   /* Company Dark Blue */
   --primary: #00175f;
   --primary-foreground: #ffffff;
-  /* White */
-  --secondary: #ffffff;
-  --secondary-foreground: #00175f;
+  /* Salesforce Blue */
+  --secondary: #00A1E0;
+  --secondary-foreground: #ffffff;
   --muted: #f5f5f5;
   --muted-foreground: #6b7280;
-  /* Medium blue */
-  --accent: #0025a0;
+  /* Salesforce Blue */
+  --accent: #00A1E0;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --border: #e5e7eb;
   --input: #e5e7eb;
-  --ring: #00175f;
-  /* Chart colors matching company branding */
-  --chart-1: #00175f; /* Dark blue */
-  --chart-2: #0025a0; /* Medium blue */
+  --ring: #00A1E0;
+  /* Chart colors matching combined branding */
+  --chart-1: #00175f; /* Company Dark blue */
+  --chart-2: #00A1E0; /* Salesforce Blue */
   --chart-3: #ffffff; /* White */
-  --chart-4: #001d7a; /* Slightly lighter blue */
-  --chart-5: #002299; /* Another blue shade */
+  --chart-4: #0078a8; /* Darker Salesforce Blue */
+  --chart-5: #0025a0; /* Medium Company Blue */
   --sidebar: #ffffff;
   --sidebar-foreground: #00175f;
   --sidebar-primary: #00175f; /* Dark blue */
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #0025a0; /* Medium blue */
+  --sidebar-accent: #00A1E0; /* Salesforce Blue */
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #b4b4b4;
@@ -106,13 +106,13 @@
   /* White for primary elements */
   --primary: #ffffff;
   --primary-foreground: #00175f;
-  /* Medium blue */
-  --secondary: #0025a0;
+  /* Salesforce blue */
+  --secondary: #00A1E0;
   --secondary-foreground: #ffffff;
   --muted: #002299;
   --muted-foreground: #e5e7eb;
-  /* Lighter blue */
-  --accent: #002299;
+  /* Salesforce blue */
+  --accent: #00A1E0;
   --accent-foreground: #ffffff;
   --destructive: #fca5a5;
   --border: rgba(255, 255, 255, 0.1);

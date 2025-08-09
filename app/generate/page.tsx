@@ -126,7 +126,7 @@ export default function GenerateQRPage() {
     <>
       <Header />
       <div className="container mx-auto py-4 px-2">
-        <Button variant="default" onClick={() => router.push("/")}>
+        <Button variant="salesforce" onClick={() => router.push("/")}>
           &larr; Back to Home
         </Button>
         <div className="flex items-center justify-center flex-wrap mb-8 mt-4">
@@ -242,7 +242,8 @@ export default function GenerateQRPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    variant="salesforce"
+                    className="w-full"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

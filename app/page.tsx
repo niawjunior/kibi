@@ -28,7 +28,7 @@ export default function Home() {
           </div>
 
           <div className="mt-8 mb-12 flex justify-center">
-            <Button asChild variant="default" className="">
+            <Button asChild variant="salesforce" className="">
               <Link href="/generate" className="flex items-center gap-2">
                 <QrCode className="h-4 w-4" />
                 Generate New Visitor QR Code
@@ -299,10 +299,10 @@ export default function Home() {
               </p>
             </CardContent>
             <CardFooter className="flex flex-wrap gap-4">
-              <Button asChild variant="default">
+              <Button asChild variant="salesforce">
                 <Link href="/register?id=TEST001">Test User 1</Link>
               </Button>
-              <Button asChild variant="default">
+              <Button asChild variant="salesforce">
                 <Link href="/register?id=TEST002">Test User 2</Link>
               </Button>
             </CardFooter>
@@ -310,8 +310,8 @@ export default function Home() {
 
           <footer className="mt-12 text-center text-sm text-muted-foreground">
             <p>
-              AI Kiosk Event Registration System &copy;{" "}
-              {new Date().getFullYear()}
+              Copyright {new Date().getFullYear()} I&I Group Public Company
+              Limited. All Rights Reserved
             </p>
           </footer>
         </div>

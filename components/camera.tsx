@@ -140,7 +140,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
       try {
         // Set uploading state to true at the beginning
         setIsUploading(true);
-        
+
         const video = videoRef.current;
         const canvas = canvasRef.current;
 
@@ -188,7 +188,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
         } else {
           // If no userRef, just use the base64 data but add a small delay
           // to ensure the loading state is visible
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
           onCapture(imageData, imageData);
         }
       } catch (err) {
@@ -216,8 +216,8 @@ export function Camera({ onCapture, userRef }: CameraProps) {
         </Alert>
       )}
 
-      <div className="w-full overflow-hidden border-2 border-muted">
-        <div className="relative w-full aspect-[3/4] bg-black">
+      <div className="w-full overflow-hidden ">
+        <div className="relative w-full aspect-[3/4] h-[300px] bg-black">
           {/* Always render the video element regardless of camera state */}
           <video
             ref={videoRef}
@@ -226,11 +226,43 @@ export function Camera({ onCapture, userRef }: CameraProps) {
             style={{
               transform: mirrored ? "scaleX(-1)" : "none", // Flip horizontally if mirrored is true
             }}
-            className={`w-full h-full object-cover ${
+            className={`w-full  aspect-[3/4] h-[300px] object-cover ${
               !isCameraActive ? "hidden" : ""
             }`}
           />
 
+          {isCameraActive && (
+            <div className="flex space-x-2 w-full absolute top-2 left-2">
+              <Button
+                onClick={stopCamera}
+                variant="outline"
+                size="icon"
+                disabled={isUploading}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={() => {
+                  stopCamera();
+                  setTimeout(startCamera, 300);
+                }}
+                variant="outline"
+                size="icon"
+                disabled={isUploading}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={() => setMirrored(!mirrored)}
+                variant="outline"
+                size="icon"
+                title={mirrored ? "Disable mirror mode" : "Enable mirror mode"}
+                disabled={isUploading}
+              >
+                <ArrowRightLeft />
+              </Button>
+            </div>
+          )}
           {/* Overlay UI when camera is not active */}
           {!isCameraActive && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/20 p-4 text-center">
@@ -279,60 +311,28 @@ export function Camera({ onCapture, userRef }: CameraProps) {
       {/* Hidden canvas for capturing photos */}
       <canvas ref={canvasRef} className="hidden" />
 
-      <div className="flex flex-col px-2 w-full gap-2 justify-center py-2">
-        {isCameraActive && (
-          <>
-            <div className="flex space-x-2 w-full justify-between">
-              <Button
-                onClick={stopCamera}
-                variant="outline"
-                size="icon"
-                disabled={isUploading}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => {
-                  stopCamera();
-                  setTimeout(startCamera, 300);
-                }}
-                variant="outline"
-                size="icon"
-                disabled={isUploading}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => setMirrored(!mirrored)}
-                variant="outline"
-                size="icon"
-                title={mirrored ? "Disable mirror mode" : "Enable mirror mode"}
-                disabled={isUploading}
-              >
-                <ArrowRightLeft />
-              </Button>
-            </div>
-            <Button
-              onClick={capturePhoto}
-              variant="default"
-              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={isUploading}
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Taking photo...
-                </>
-              ) : (
-                <>
-                  <CameraIcon className="h-4 w-4 mr-2" />
-                  Take Photo
-                </>
-              )}
-            </Button>
-          </>
-        )}
-      </div>
+      {isCameraActive && (
+        <div className="flex flex-col px-2 w-full gap-2 justify-center py-2">
+          <Button
+            onClick={capturePhoto}
+            variant="default"
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Taking photo...
+              </>
+            ) : (
+              <>
+                <CameraIcon className="h-4 w-4 mr-2" />
+                Take Photo
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
