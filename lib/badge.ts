@@ -84,7 +84,7 @@ export async function generateBadgePreview(
       background: "transparent",
       prompt: `Convert the provided portrait into a high-quality 3D anime-style character.
 Keep the likeness and recognizable features.
-Place the subject inside a perfect circular crop with no stroke or border.
+Place the subject inside a perfect circular crop and must no stroke or border.
 Make the background fully transparent outside the portrait.
 Use smooth shading, soft lighting, and expressive eyes.
 No text, no extra elements, only the character's face and shoulders inside the circle.`,

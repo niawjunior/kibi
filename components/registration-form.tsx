@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { User } from "@/lib/supabase";
 import { UserProfile } from "./user-profile";
@@ -21,6 +21,7 @@ import {
   Tag,
   User as UserIcon,
   Eye,
+  WandSparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -35,7 +36,11 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { updateUserRegistration, uploadBadgeImage, uploadUserPhoto } from "@/lib/db";
+import {
+  updateUserRegistration,
+  uploadBadgeImage,
+  uploadUserPhoto,
+} from "@/lib/db";
 import { generateBadgePreview } from "@/lib/badge";
 import {
   prepareImageForPrinting as generatePrintData,
@@ -51,10 +56,32 @@ type RegistrationStep = "info" | "photo" | "preview" | "printing" | "complete";
 
 export function RegistrationForm({ user }: RegistrationFormProps) {
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("info");
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(
+    user.photo_url || null
+  );
   const [photoBase64, setPhotoBase64] = useState<string>("");
-  const [badgePreviewUrl, setBadgePreviewUrl] = useState<string | null>(null);
+  const [badgePreviewUrl, setBadgePreviewUrl] = useState<string | null>(
+    user.badge_url || null
+  );
   const [isBadgeLoading, setIsBadgeLoading] = useState(false);
+  const [blendedBadgeUrl, setBlendedBadgeUrl] = useState<string | null>(null);
+  const [isBlendedBadgeLoading, setIsBlendedBadgeLoading] = useState(false);
+
+  // If user is already registered, use their existing photo and badge from Supabase
+  useEffect(() => {
+    if (user.registered) {
+      console.log("User is registered, using data from Supabase");
+      console.log("Photo URL from Supabase:", user.photo_url);
+      console.log("Badge URL from Supabase:", user.badge_url);
+
+      // Set photo and badge from Supabase data
+      setPhotoUrl(user.photo_url || null);
+      setBadgePreviewUrl(user.badge_url || null);
+
+      // Always start at step 1 (info) as requested
+      setCurrentStep("info");
+    }
+  }, [user]);
   const [isLoading, setIsLoading] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,33 +117,57 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     }
   };
 
-  // Generate badge preview
-  const handleGenerateBadgePreview = async (imageUrl?: string) => {
-    const photoToUse = imageUrl || photoUrl;
-
-    if (!photoToUse || !user) {
-      setError("Photo is required for badge preview");
-      return;
-    }
+  // Generate badge preview using OpenAI API
+  const handleGenerateBadgePreview = async () => {
+    if (!photoUrl) return;
 
     setIsBadgeLoading(true);
     setError(null);
 
     try {
-      // Use a placeholder background image URL for now
-      // In a real implementation, you would have a badge template stored in your assets
+      // Check if user is registered AND has not taken a new photo
+      // If the current photoUrl is the same as the one stored in user.photo_url, use existing badge
+      if (
+        user.registered &&
+        user.badge_url &&
+        user.photo_url &&
+        photoUrl === user.photo_url
+      ) {
+        console.log(
+          "Using existing badge URL for registered user:",
+          user.badge_url
+        );
+        setBadgePreviewUrl(user.badge_url);
+
+        // Generate blended badge for printing using Canvas
+        await generateBlendedBadge(user.badge_url);
+
+        setCurrentStep("preview");
+        return;
+      }
+
+      // For non-registered users OR registered users with a new photo, generate new badge
+      console.log(
+        "Generating new badge for",
+        user.registered ? "registered user with new photo" : "new user"
+      );
       const backgroundImageUrl = "/badge-template.png";
 
       // Generate badge preview using OpenAI API
       const badgeBase64 = await generateBadgePreview(
         backgroundImageUrl,
-        photoToUse,
+        photoUrl,
         `${user.name} ${user.last_name}`
       );
 
       if (badgeBase64) {
         // Convert base64 to data URL for display
         setBadgePreviewUrl(`data:image/png;base64,${badgeBase64}`);
+
+        // Generate blended badge for printing using Canvas
+        // Convert base64 to data URL for the blended badge generation
+        await generateBlendedBadge(`data:image/png;base64,${badgeBase64}`);
+
         setCurrentStep("preview");
       } else {
         setError("Failed to generate badge preview. Please try again.");
@@ -126,6 +177,68 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       setError("Failed to generate badge preview. Please try again.");
     } finally {
       setIsBadgeLoading(false);
+    }
+  };
+
+  // Generate a blended badge image for printing (combining template and photo)
+  const generateBlendedBadge = async (photoUrl: string) => {
+    setIsBlendedBadgeLoading(true);
+
+    try {
+      // Create a canvas element
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("Could not get canvas context");
+      }
+
+      // Set canvas dimensions
+      canvas.width = 2000;
+      canvas.height = 600;
+
+      // Load the badge template image
+      const templateImage = document.createElement("img");
+      templateImage.crossOrigin = "anonymous";
+
+      // Load the user photo
+      const userPhoto = document.createElement("img");
+      userPhoto.crossOrigin = "anonymous";
+
+      // Wait for both images to load
+      await new Promise((resolve, reject) => {
+        templateImage.onload = () => {
+          userPhoto.onload = resolve;
+          userPhoto.onerror = () =>
+            reject(new Error("Failed to load user photo"));
+          userPhoto.src = photoUrl;
+        };
+        templateImage.onerror = () =>
+          reject(new Error("Failed to load template image"));
+        templateImage.src = "/badge-template.png";
+      });
+
+      // Draw the template first
+      ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+
+      // Draw the user photo on top (positioned in the center for now)
+      // You can adjust these values later as needed
+      const photoWidth = 500;
+      const photoHeight = 500;
+      const photoX = canvas.width - photoWidth - 72;
+      const photoY = (canvas.height - photoHeight) / 2;
+
+      ctx.drawImage(userPhoto, photoX, photoY, photoWidth, photoHeight);
+
+      // Convert canvas to data URL
+      const blendedImageUrl = canvas.toDataURL("image/png");
+      setBlendedBadgeUrl(blendedImageUrl);
+    } catch (err: any) {
+      console.error("Error generating blended badge:", err);
+      setError(
+        `Failed to generate blended badge: ${err.message || "Unknown error"}`
+      );
+    } finally {
+      setIsBlendedBadgeLoading(false);
     }
   };
 
@@ -143,17 +256,26 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       // Upload badge image to storage if we have a badge preview
       let badgeUrl: string | undefined = undefined;
       if (badgePreviewUrl) {
-        const uploadedBadgeUrl = await uploadBadgeImage(badgePreviewUrl, user.ref);
+        const uploadedBadgeUrl = await uploadBadgeImage(
+          badgePreviewUrl,
+          user.ref
+        );
         if (uploadedBadgeUrl) {
           badgeUrl = uploadedBadgeUrl;
         } else {
-          console.warn("Failed to upload badge image, continuing with registration");
+          console.warn(
+            "Failed to upload badge image, continuing with registration"
+          );
         }
       }
 
       // The photoUrl is now either a Supabase storage URL or base64 data
       // updateUserRegistration will save this URL to the database
-      const updatedUser = await updateUserRegistration(user.ref, photoUrl, badgeUrl);
+      const updatedUser = await updateUserRegistration(
+        user.ref,
+        photoUrl,
+        badgeUrl
+      );
 
       if (!updatedUser) {
         throw new Error("Failed to update registration status.");
@@ -248,7 +370,12 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <UserProfile user={user} photoUrl={photoUrl || undefined} />
+              <UserProfile
+                user={user}
+                photoUrl={photoUrl || undefined}
+                showBadge={badgePreviewUrl ? true : false}
+                badgeUrl={badgePreviewUrl || undefined}
+              />
 
               {error && (
                 <Alert variant="destructive">
@@ -320,7 +447,9 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                       </CardContent>
                       <CardFooter className="flex justify-center h-full">
                         <CardDescription className="text-sm">
-                          Photo Preview
+                          {user.registered && user.photo_url === photoUrl
+                            ? "Existing Photo"
+                            : "Photo Preview"}
                         </CardDescription>
                       </CardFooter>
                     </Card>
@@ -363,7 +492,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   </>
                 ) : (
                   <>
-                    Preview Badge <Eye className="ml-2 h-4 w-4" />
+                    Generate Badge <WandSparkles className="ml-2 h-4 w-4" />
                   </>
                 )}
               </Button>
@@ -390,19 +519,53 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               {badgePreviewUrl ? (
-                <div className="flex justify-center">
-                  <Card className="overflow-hidden border border-muted w-full max-w-sm">
-                    <CardContent className="p-0 flex justify-center items-center">
-                      <Image
-                        width={400}
-                        height={300}
-                        src={badgePreviewUrl}
-                        alt="Badge Preview"
-                        priority
-                        className="w-full object-contain"
-                      />
-                    </CardContent>
-                  </Card>
+                <div className="space-y-4">
+                  <div className="flex justify-center">
+                    <Card className="overflow-hidden border border-muted w-full max-w-sm">
+                      <CardContent className="p-0 flex justify-center items-center">
+                        <Image
+                          width={400}
+                          height={300}
+                          src={badgePreviewUrl}
+                          alt="Badge Preview"
+                          priority
+                          className="w-full object-contain"
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Blended Badge for Printing */}
+                  {blendedBadgeUrl && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-2">
+                        Print-Ready Badge
+                      </h3>
+                      <div className="flex justify-center">
+                        <Card className="overflow-hidden border border-muted w-full max-w-sm">
+                          <CardContent className="p-0 flex justify-center items-center">
+                            {isBlendedBadgeLoading ? (
+                              <div className="flex flex-col items-center justify-center p-4">
+                                <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
+                                <p className="text-sm text-muted-foreground">
+                                  Generating print badge...
+                                </p>
+                              </div>
+                            ) : (
+                              <Image
+                                width={400}
+                                height={300}
+                                src={blendedBadgeUrl}
+                                alt="Print-Ready Badge"
+                                priority
+                                className="w-full object-contain"
+                              />
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center p-8">

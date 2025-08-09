@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import QRCode from "react-qr-code";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createVisitor } from "@/lib/db";
+import { createVisitor, getUserByRef } from "@/lib/db";
+import { UserProfile } from "@/components/user-profile";
+import { User } from "@/lib/supabase";
 
 // Define form schema
 const formSchema = z.object({
@@ -43,6 +46,8 @@ export default function GenerateQRPage() {
   const [error, setError] = useState<string | null>(null);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [visitorRef, setVisitorRef] = useState<string | null>(null);
+  const [registeredUser, setRegisteredUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Initialize form
   const form = useForm<FormValues>({
@@ -57,10 +62,35 @@ export default function GenerateQRPage() {
     },
   });
 
+  // Fetch user data when reference ID is available
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (visitorRef) {
+        setIsLoading(true);
+        try {
+          const userData = await getUserByRef(visitorRef);
+          console.log("Fetched user data:", userData);
+          if (userData && userData.registered) {
+            setRegisteredUser(userData);
+          } else {
+            setRegisteredUser(null);
+          }
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [visitorRef]);
+
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     setError(null);
+    setRegisteredUser(null); // Reset registered user when generating new QR
 
     try {
       // Generate a unique reference ID for the visitor
@@ -231,24 +261,70 @@ export default function GenerateQRPage() {
             <CardTitle className="text-center">Your QR Code</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
-            <div className="bg-white p-4 rounded-md mb-4">
-              <QRCode value={qrCodeData} size={200} />
-            </div>
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin mb-4" />
+                <p className="text-sm text-muted-foreground">Loading visitor information...</p>
+              </div>
+            ) : registeredUser ? (
+              <div className="w-full space-y-6">
+                {/* Display registered user information with photo and badge */}
+                <UserProfile 
+                  user={registeredUser} 
+                  photoUrl={registeredUser.photo_url} 
+                  badgeUrl={registeredUser.badge_url} 
+                  showBadge={true} 
+                />
+                
+                {/* Display larger badge if available */}
+                {registeredUser.badge_url && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium text-center">Visitor Badge Preview</h3>
+                    <div className="flex justify-center">
+                      <div className="relative h-64 w-48 border rounded-md overflow-hidden">
+                        <Image 
+                          src={registeredUser.badge_url}
+                          alt="Visitor Badge"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-4 border-t">
+                  <p className="text-center mb-4">
+                    Reference ID: <span className="font-bold">{visitorRef}</span>
+                  </p>
+                  <div className="bg-white p-4 rounded-md mb-4">
+                    <QRCode value={qrCodeData} size={200} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="bg-white p-4 rounded-md mb-4">
+                  <QRCode value={qrCodeData} size={200} />
+                </div>
 
-            <p className="text-center mb-4">
-              Reference ID: <span className="font-bold">{visitorRef}</span>
-            </p>
+                <p className="text-center mb-4">
+                  Reference ID: <span className="font-bold">{visitorRef}</span>
+                </p>
 
-            <p className="text-sm text-muted-foreground text-center mb-6">
-              Scan this QR code at the event registration kiosk
-            </p>
+                <p className="text-sm text-muted-foreground text-center mb-6">
+                  Scan this QR code at the event registration kiosk
+                </p>
+              </>
+            )}
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-6">
               <Button
                 variant="outline"
                 onClick={() => {
                   setQrCodeData(null);
                   setVisitorRef(null);
+                  setRegisteredUser(null);
                   form.reset();
                 }}
               >

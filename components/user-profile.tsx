@@ -17,26 +17,61 @@ import { Building, Mail, Briefcase, Tag, Phone, UserCheck } from "lucide-react";
 interface UserProfileProps {
   user: User;
   photoUrl?: string;
+  badgeUrl?: string;
+  showBadge?: boolean;
 }
 
-export function UserProfile({ user, photoUrl }: UserProfileProps) {
+export function UserProfile({
+  user,
+  photoUrl,
+  badgeUrl,
+  showBadge = false,
+}: UserProfileProps) {
+  console.log("user", user);
+  console.log("photoUrl", photoUrl);
+  console.log("badgeUrl", badgeUrl);
   return (
     <div className="space-y-4">
-      <div className="flex justify-center">
-        <Avatar className="h-24 w-24 border-2 border-primary">
-          {photoUrl ? (
-            <AvatarImage
-              className="h-full w-full object-cover"
-              src={photoUrl}
-              alt={`${user.name} ${user.last_name}`}
-            />
-          ) : (
-            <AvatarFallback className="text-2xl">
-              {user.name[0]}
-              {user.last_name[0]}
-            </AvatarFallback>
-          )}
-        </Avatar>
+      <div className="flex justify-center gap-6">
+        {/* User Photo */}
+        <div className="flex flex-col items-center">
+          <p className="text-sm text-muted-foreground mb-2">Photo</p>
+          <Avatar className="h-24 w-24 ">
+            {photoUrl ? (
+              <AvatarImage
+                className="h-full w-full object-cover"
+                src={photoUrl}
+                alt={`${user.name} ${user.last_name}`}
+              />
+            ) : (
+              <AvatarFallback className="text-2xl">
+                {user.name[0]}
+                {user.last_name[0]}
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </div>
+
+        {/* Badge Preview */}
+        {showBadge && badgeUrl && (
+          <div className="flex flex-col items-center">
+            <p className="text-sm text-muted-foreground mb-2">Badge</p>
+            <Avatar className="h-24 w-24 ">
+              {badgeUrl ? (
+                <AvatarImage
+                  className="h-full w-full object-cover"
+                  src={badgeUrl}
+                  alt={`${user.name} ${user.last_name}`}
+                />
+              ) : (
+                <AvatarFallback className="text-2xl">
+                  {user.name[0]}
+                  {user.last_name[0]}
+                </AvatarFallback>
+              )}
+            </Avatar>
+          </div>
+        )}
       </div>
 
       <Card>
