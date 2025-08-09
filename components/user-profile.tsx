@@ -42,6 +42,7 @@ export function UserProfile({
                 className="h-[100px] w-[100px] object-cover"
                 src={photoUrl}
                 alt={`${user.name} ${user.last_name}`}
+                loading="eager"
               />
             ) : (
               <AvatarFallback className="text-2xl">

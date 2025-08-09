@@ -9,8 +9,8 @@ export function Header() {
           <Image
             src="/logo_iig-white.svg"
             alt="IIG Logo"
-            width={120}
-            height={40}
+            width={80}
+            height={20}
             className="object-contain"
             priority
           />

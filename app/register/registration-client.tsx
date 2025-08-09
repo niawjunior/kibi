@@ -48,7 +48,7 @@ export default function RegistrationClient() {
         setUser(userData);
         setTimeout(() => {
           setLoading(false);
-        }, 2000);
+        }, 1500);
       } catch (err: any) {
         console.error("Error fetching user data:", err);
         setError(

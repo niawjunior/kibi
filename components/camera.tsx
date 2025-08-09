@@ -209,7 +209,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
   }, [stopCamera]);
 
   return (
-    <div className="flex flex-col items-center space-y-4">
+    <div className="flex flex-col items-center ">
       {error && (
         <Alert variant="destructive" className="text-sm">
           <AlertDescription>{error}</AlertDescription>
@@ -232,36 +232,61 @@ export function Camera({ onCapture, userRef }: CameraProps) {
           />
 
           {isCameraActive && (
-            <div className="flex space-x-2 w-full absolute top-2 left-2">
-              <Button
-                onClick={stopCamera}
-                variant="outline"
-                size="icon"
-                disabled={isUploading}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => {
-                  stopCamera();
-                  setTimeout(startCamera, 300);
-                }}
-                variant="outline"
-                size="icon"
-                disabled={isUploading}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => setMirrored(!mirrored)}
-                variant="outline"
-                size="icon"
-                title={mirrored ? "Disable mirror mode" : "Enable mirror mode"}
-                disabled={isUploading}
-              >
-                <ArrowRightLeft />
-              </Button>
-            </div>
+            <>
+              <div className="flex space-x-2 w-full absolute top-2 left-2">
+                <Button
+                  onClick={stopCamera}
+                  variant="outline"
+                  size="icon"
+                  disabled={isUploading}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => {
+                    stopCamera();
+                    setTimeout(startCamera, 300);
+                  }}
+                  variant="outline"
+                  size="icon"
+                  disabled={isUploading}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => setMirrored(!mirrored)}
+                  variant="outline"
+                  size="icon"
+                  title={
+                    mirrored ? "Disable mirror mode" : "Enable mirror mode"
+                  }
+                  disabled={isUploading}
+                >
+                  <ArrowRightLeft />
+                </Button>
+              </div>
+
+              <div className="flex flex-col px-2 w-full gap-2 justify-center py-2 absolute bottom-2">
+                <Button
+                  onClick={capturePhoto}
+                  variant="salesforce"
+                  className="flex-1"
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Taking photo...
+                    </>
+                  ) : (
+                    <>
+                      <CameraIcon className="h-4 w-4 mr-2" />
+                      Take Photo
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
           )}
           {/* Overlay UI when camera is not active */}
           {!isCameraActive && (
@@ -310,29 +335,6 @@ export function Camera({ onCapture, userRef }: CameraProps) {
 
       {/* Hidden canvas for capturing photos */}
       <canvas ref={canvasRef} className="hidden" />
-
-      {isCameraActive && (
-        <div className="flex flex-col px-2 w-full gap-2 justify-center py-2">
-          <Button
-            onClick={capturePhoto}
-            variant="salesforce"
-            className="flex-1"
-            disabled={isUploading}
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Taking photo...
-              </>
-            ) : (
-              <>
-                <CameraIcon className="h-4 w-4 mr-2" />
-                Take Photo
-              </>
-            )}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

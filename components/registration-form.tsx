@@ -59,6 +59,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     user.badge_url || null
   );
   const [isBadgeLoading, setIsBadgeLoading] = useState(false);
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false);
   const [blendedBadgeUrl, setBlendedBadgeUrl] = useState<string | null>(null);
   const [isBlendedBadgeLoading, setIsBlendedBadgeLoading] = useState(false);
   const [selectedAvatarStyle, setSelectedAvatarStyle] =
@@ -86,6 +87,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
 
   // Handle photo capture
   const handlePhotoCapture = async (imageUrl: string, imageBase64: string) => {
+    setIsPhotoLoading(true);
     setIsImageLoading(true);
     setPhotoBase64(imageBase64); // Keep base64 for printing
     setError(null);
@@ -96,6 +98,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
         const publicUrl = await uploadUserPhoto(imageBase64, user.ref);
         if (publicUrl) {
           setPhotoUrl(publicUrl);
+          setIsPhotoLoading(false);
         } else {
           setError("Failed to upload photo. Please try again.");
           setPhotoUrl(imageUrl); // Fallback to local URL
@@ -338,6 +341,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
+            className="space-y-4"
             variants={stepVariants}
           >
             <CardHeader>
@@ -391,7 +395,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 {/* Camera on the left */}
                 <div className="md:w-1/2">
                   <Card className="">
-                    <CardContent className="p-0 px-2 min-h-[370px]">
+                    <CardContent className="p-0 px-2">
                       <Camera onCapture={handlePhotoCapture} />
                     </CardContent>
                   </Card>
@@ -400,41 +404,46 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 {/* Preview on the right */}
                 <div className="md:w-1/2">
                   {photoUrl ? (
-                    <Card className="">
+                    <Card className="relative">
                       <CardContent className="p-0 px-2 min-h-[300px]">
                         {isImageLoading && (
-                          <div className="flex flex-col items-center justify-center p-4">
-                            <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
-                            <p className="text-sm text-muted-foreground">
-                              Loading image...
-                            </p>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="flex flex-col items-center justify-center  p-4 rounded-md">
+                              <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
+                              <p className="text-sm text-muted-foreground">
+                                Loading image...
+                              </p>
+                            </div>
                           </div>
                         )}
-                        <div className={isImageLoading ? "hidden" : "block"}>
-                          <Image
-                            width={200}
-                            height={300}
-                            src={photoUrl}
-                            alt="Captured photo"
-                            priority
-                            className="w-full  aspect-[3/4] h-[300px] object-cover"
-                            onLoadingComplete={() => setIsImageLoading(false)}
-                            onError={() => {
-                              setIsImageLoading(false);
-                              setError(
-                                "Failed to load image. Please try again."
-                              );
-                            }}
-                          />
+                        <div>
+                          {!isPhotoLoading && (
+                            <Image
+                              placeholder="blur"
+                              blurDataURL={photoUrl}
+                              width={200}
+                              height={300}
+                              src={photoUrl}
+                              alt="Captured photo"
+                              loading="eager"
+                              priority
+                              className="w-full h-[300px]  aspect-[3/4] object-cover"
+                              onError={() => {
+                                setError(
+                                  "Failed to load image. Please try again."
+                                );
+                              }}
+                            />
+                          )}
                         </div>
                       </CardContent>
-                      <CardFooter className="flex justify-center h-[45px]">
-                        <CardDescription className="text-sm">
+                      <div className="flex items-center justify-center absolute bottom-10 left-1/2 transform -translate-x-1/2">
+                        <CardDescription className="text-xs text-white">
                           {user.registered && user.photo_url === photoUrl
                             ? "Existing Photo"
                             : "Photo Preview"}
                         </CardDescription>
-                      </CardFooter>
+                      </div>
                     </Card>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg h-full">
@@ -451,21 +460,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-
-              {/* Camera Debug Tool - helps diagnose camera permission issues */}
-              <details className="mt-4">
-                <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
-                  Having trouble with camera? Click to troubleshoot
-                </summary>
-                <div className="pt-3">
-                  <CameraDebug />
-                </div>
-              </details>
             </CardContent>
             <CardFooter className="flex flex-col space-y-3">
               {/* Avatar Style Selection */}
-              <div className="mb-2">
-                <Label className="block mb-2 text-center">
+              <div className="">
+                <Label className="block mb-2 mt-4 text-center">
                   Select Avatar Style
                 </Label>
                 <div className="flex justify-center gap-3">
@@ -476,7 +475,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                         : ""
                     }`}
                   >
-                    <Avatar className="h-24 w-24 ">
+                    <Avatar className="h-12 w-12 ">
                       <AvatarImage
                         onClick={() => setSelectedAvatarStyle("photo-shoot")}
                         className={`h-full w-full object-cover ${
@@ -495,7 +494,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                       selectedAvatarStyle === "anime" ? "border-blue-500" : ""
                     }`}
                   >
-                    <Avatar className="h-24 w-24 ">
+                    <Avatar className="h-12 w-12 ">
                       <AvatarImage
                         onClick={() => setSelectedAvatarStyle("anime")}
                         className={`h-full w-full object-cover ${
@@ -514,7 +513,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                         : ""
                     }`}
                   >
-                    <Avatar className="h-24 w-24 ">
+                    <Avatar className="h-12 w-12 ">
                       <AvatarImage
                         onClick={() => setSelectedAvatarStyle("80s-Glam")}
                         className={`h-full w-full object-cover ${
@@ -529,7 +528,12 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
               </div>
               <Button
                 onClick={() => handleGenerateBadgePreview()}
-                disabled={!photoUrl || isImageLoading || isBadgeLoading}
+                disabled={
+                  !photoUrl ||
+                  isImageLoading ||
+                  isBadgeLoading ||
+                  isPhotoLoading
+                }
                 className="w-full"
               >
                 {isBadgeLoading ? (
@@ -552,6 +556,16 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
             </CardFooter>
+
+            {/* Camera Debug Tool - helps diagnose camera permission issues */}
+            <details className="mt-4 px-6">
+              <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
+                Having trouble with camera? Click to troubleshoot
+              </summary>
+              <div className="pt-3">
+                <CameraDebug />
+              </div>
+            </details>
           </motion.div>
         );
 
