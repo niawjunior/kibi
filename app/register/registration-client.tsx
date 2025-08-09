@@ -13,7 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Loader2, QrCode } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { motion } from "framer-motion";
 

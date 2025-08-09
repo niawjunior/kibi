@@ -168,7 +168,7 @@ export async function uploadUserPhoto(
     const filePath = `${fileName}`;
 
     // Upload to Supabase storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("photos")
       .upload(filePath, binaryData, {
         contentType: "image/jpeg",
@@ -204,10 +204,10 @@ export async function uploadBadgeImage(
 ): Promise<string | null> {
   try {
     // Check if the image is already a URL (not base64)
-    if (base64Image.startsWith('http')) {
+    if (base64Image.startsWith("http")) {
       return base64Image; // Return the URL as is
     }
-    
+
     // Remove the data URL prefix to get just the base64 data
     const base64Data = base64Image.split(",")[1];
     if (!base64Data) {

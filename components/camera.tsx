@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Camera as CameraIcon,
@@ -124,13 +124,13 @@ export function Camera({ onCapture, userRef }: CameraProps) {
   };
 
   // Stop camera stream
-  const stopCamera = () => {
+  const stopCamera = useCallback(() => {
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
       setStream(null);
       setIsCameraActive(false);
     }
-  };
+  }, [stream]);
 
   // Capture photo and upload to Supabase if userRef is provided
 
@@ -206,7 +206,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
     return () => {
       stopCamera();
     };
-  }, []);
+  }, [stopCamera]);
 
   return (
     <div className="flex flex-col items-center space-y-4">

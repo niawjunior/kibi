@@ -6,29 +6,19 @@ import { User } from "@/lib/supabase";
 import { UserProfile } from "./user-profile";
 import { Camera } from "./camera";
 import { CameraDebug } from "./camera-debug";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 import {
-  AlertCircle,
   ArrowLeft,
   ArrowRight,
-  BadgeCheck,
-  Building,
-  Briefcase,
   CheckCircle,
   Loader2,
-  Mail,
-  Phone,
   Printer,
-  Tag,
-  User as UserIcon,
-  Eye,
   WandSparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -68,7 +58,6 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   const [badgePreviewUrl, setBadgePreviewUrl] = useState<string | null>(
     user.badge_url || null
   );
-  const [badgeBase64, setBadgeBase64] = useState<string | null>(null);
   const [isBadgeLoading, setIsBadgeLoading] = useState(false);
   const [blendedBadgeUrl, setBlendedBadgeUrl] = useState<string | null>(null);
   const [isBlendedBadgeLoading, setIsBlendedBadgeLoading] = useState(false);
@@ -177,7 +166,6 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       if (badgeBase64) {
         // Convert base64 to data URL for display
         setBadgePreviewUrl(`data:image/png;base64,${badgeBase64}`);
-        setBadgeBase64(badgeBase64);
 
         // Generate blended badge for printing using Canvas
         // Convert base64 to data URL for the blended badge generation
@@ -386,9 +374,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       case "photo":
         return (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            key="photo-step"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={stepVariants}
           >
             <CardHeader>
               <CardTitle>Take a Photo</CardTitle>
@@ -568,9 +558,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       case "preview":
         return (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            key="preview-step"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={stepVariants}
           >
             <CardHeader>
               <CardTitle>Your Event Badge</CardTitle>
@@ -687,9 +679,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       case "printing":
         return (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            key="printing-step"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={stepVariants}
           >
             <CardHeader>
               <CardTitle>Printing Your Badge</CardTitle>
@@ -723,9 +717,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       case "complete":
         return (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            key="complete-step"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={stepVariants}
           >
             <CardHeader>
               <CardTitle>Your Badge is Ready!</CardTitle>
@@ -792,7 +788,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     <motion.div initial="hidden" animate="visible" variants={cardVariants}>
       <Card className="w-full max-w-lg mx-auto shadow-md">
         {renderStepIndicator()}
-        {renderStepContent()}
+        <AnimatePresence mode="wait">{renderStepContent()}</AnimatePresence>
       </Card>
     </motion.div>
   );
