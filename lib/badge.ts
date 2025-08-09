@@ -1,110 +1,156 @@
 /**
- * Badge generation utilities using OpenAI Image API
+ * Badge generation utilities
  */
-import OpenAI, { toFile } from "openai";
+
+// Define avatar style options
+export type AvatarStyle = "photo-shoot" | "anime" | "80s-Glam";
 
 /**
- * Convert a base64 string to a Blob
- * @param base64 Base64 string to convert
- * @param mimeType MIME type of the blob
- * @returns Blob created from the base64 string
- */
-function base64ToBlob(base64: string, mimeType: string): Blob {
-  const byteCharacters = atob(base64.split(",")[1]);
-  const byteArrays = [];
-
-  for (let i = 0; i < byteCharacters.length; i += 512) {
-    const slice = byteCharacters.slice(i, i + 512);
-    const byteNumbers = new Array(slice.length);
-
-    for (let j = 0; j < slice.length; j++) {
-      byteNumbers[j] = slice.charCodeAt(j);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
-  }
-
-  return new Blob(byteArrays, { type: mimeType });
-}
-
-/**
- * Convert a URL to a Blob
- * @param url URL to convert to blob
- * @returns Promise resolving to a Blob
- */
-async function urlToBlob(url: string): Promise<Blob> {
-  const response = await fetch(url);
-  return await response.blob();
-}
-
-/**
- * Generate a badge preview using OpenAI Image API
- * @param backgroundImageUrl URL of the badge background image
- * @param visitorPhotoUrl URL or base64 of the visitor's photo
+ * Generate a badge preview using server API endpoint
+ * @param photoUrl URL or base64 of the visitor's photo
  * @param visitorName Name of the visitor for the badge
+ * @param style Avatar style to use
  * @returns Base64 encoded image data of the generated badge
  */
 export async function generateBadgePreview(
-  backgroundImageUrl: string,
-  visitorPhotoUrl: string,
-  visitorName: string
+  photoUrl: string,
+  visitorName: string,
+  style: AvatarStyle = "photo-shoot"
 ): Promise<string | null> {
   try {
-    console.log("Generating badge preview for:", visitorName);
-    console.log("Using background:", backgroundImageUrl);
-    console.log("Using photo:", visitorPhotoUrl.substring(0, 50) + "...");
+    console.log("Calling API to generate badge preview for:", visitorName);
+    console.log("Using style:", style);
 
-    // Initialize the OpenAI client
-    const client = new OpenAI({
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true,
+    // Call our secure API endpoint instead of using OpenAI client directly
+    const response = await fetch("/api/generate-badge", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        photoUrl,
+        visitorName,
+        style,
+      }),
     });
 
-    // Convert image URLs/base64 to File objects for the OpenAI SDK
-    let visitorImageBlob;
-    if (visitorPhotoUrl.startsWith("data:image")) {
-      // It's a base64 string
-      visitorImageBlob = base64ToBlob(visitorPhotoUrl, "image/png");
-    } else {
-      // It's a URL
-      visitorImageBlob = await urlToBlob(visitorPhotoUrl);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to generate badge");
     }
 
-    // Convert blobs to File objects for the OpenAI SDK
-    const visitorImageFile = await toFile(visitorImageBlob, "visitor.png", {
-      type: "image/png",
-    });
-
-    // Create the badge using OpenAI's image edit API
-    const response = await client.images.edit({
-      model: "gpt-image-1",
-      image: visitorImageFile,
-      quality: "low",
-      background: "transparent",
-      prompt: `Convert the provided portrait into a high-quality 3D anime-style character.
-Keep the likeness and recognizable features.
-Place the subject inside a perfect circular crop and must no stroke or border.
-Make the background fully transparent outside the portrait.
-Use smooth shading, soft lighting, and expressive eyes.
-No text, no extra elements, only the character's face and shoulders inside the circle.`,
-      size: "1024x1024", // Using a supported size from the OpenAI API
-      n: 1,
-    });
-
-    // Return the base64 image data
-    if (
-      response.data &&
-      response.data.length > 0 &&
-      response.data[0].b64_json
-    ) {
-      return response.data[0].b64_json;
-    }
-
-    console.error("No image data returned from OpenAI API");
-    return null;
+    const data = await response.json();
+    return data.badge;
   } catch (error) {
     console.error("Error generating badge preview:", error);
     return null;
   }
 }
+
+export const generateBlendedBadge = async (
+  photoUrl: string,
+  userData?: {
+    name?: string;
+    last_name?: string;
+    company?: string;
+    position?: string;
+  }
+) => {
+  try {
+    // Create a canvas element
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Could not get canvas context");
+    }
+
+    // Set canvas dimensions
+    canvas.width = 2000;
+    canvas.height = 600;
+
+    // Load the badge template image
+    const templateImage = document.createElement("img");
+    templateImage.crossOrigin = "anonymous";
+
+    // Load the user photo
+    const userPhoto = document.createElement("img");
+    userPhoto.crossOrigin = "anonymous";
+
+    // Wait for both images to load
+    await new Promise((resolve, reject) => {
+      templateImage.onload = () => {
+        userPhoto.onload = resolve;
+        userPhoto.onerror = () =>
+          reject(new Error("Failed to load user photo"));
+        userPhoto.src = photoUrl;
+      };
+      templateImage.onerror = () =>
+        reject(new Error("Failed to load template image"));
+      templateImage.src = "/badge-template.png";
+    });
+
+    // Draw the template first
+    ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+
+    // Draw the user photo on top
+    const photoWidth = 500;
+    const photoHeight = 500;
+    const photoX = canvas.width - photoWidth - 72;
+    const photoY = (canvas.height - photoHeight) / 2;
+
+    ctx.drawImage(userPhoto, photoX, photoY, photoWidth, photoHeight);
+
+    // Add text to the badge
+    if (userData) {
+      // Configure text styling
+      ctx.fillStyle = "#ffffff";
+      ctx.textBaseline = "top";
+
+      // Draw the user name center
+      if (userData.name) {
+        ctx.font = "bold 80px Prompt";
+        ctx.fillStyle = "#ffffff";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          userData?.name?.toUpperCase() || "",
+          canvas.width / 2,
+          canvas.height / 2
+        );
+
+        // Add position below the name
+        if (userData.position) {
+          ctx.font = "bold 40px Prompt";
+          ctx.fillStyle = "#ffffff";
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            userData.position.toUpperCase() || "",
+            canvas.width / 2,
+            canvas.height / 2 + 100
+          );
+        }
+
+        // Add company name below the position
+        if (userData.company) {
+          ctx.font = "bold 40px Prompt";
+          ctx.fillStyle = "#ffffff";
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            `( ${userData.company || ""} )`,
+            canvas.width / 2,
+            canvas.height / 2 + 200
+          );
+        }
+      }
+    }
+
+    // Convert canvas to data URL
+    const blendedImageUrl = canvas.toDataURL("image/png");
+    return blendedImageUrl;
+  } catch (err: any) {
+    console.error("Error generating blended badge:", err);
+    return null;
+  }
+};

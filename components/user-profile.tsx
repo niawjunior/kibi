@@ -55,7 +55,7 @@ export function UserProfile({
         {/* Badge Preview */}
         {showBadge && badgeUrl && (
           <div className="flex flex-col items-center">
-            <p className="text-sm text-muted-foreground mb-2">Badge</p>
+            <p className="text-sm text-muted-foreground mb-2">Avatar</p>
             <Avatar className="h-24 w-24 ">
               {badgeUrl ? (
                 <AvatarImage
