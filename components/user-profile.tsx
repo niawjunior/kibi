@@ -39,7 +39,7 @@ export function UserProfile({
           <Avatar className="h-24 w-24 ">
             {photoUrl ? (
               <AvatarImage
-                className="h-full w-full object-cover"
+                className="h-[100px] w-[100px] object-cover"
                 src={photoUrl}
                 alt={`${user.name} ${user.last_name}`}
               />
@@ -59,7 +59,7 @@ export function UserProfile({
             <Avatar className="h-24 w-24 ">
               {badgeUrl ? (
                 <AvatarImage
-                  className="h-full w-full object-cover"
+                  className="h-[100px] w-[100px] object-cover"
                   src={badgeUrl}
                   alt={`${user.name} ${user.last_name}`}
                 />

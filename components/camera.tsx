@@ -315,8 +315,8 @@ export function Camera({ onCapture, userRef }: CameraProps) {
         <div className="flex flex-col px-2 w-full gap-2 justify-center py-2">
           <Button
             onClick={capturePhoto}
-            variant="default"
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+            variant="salesforce"
+            className="flex-1"
             disabled={isUploading}
           >
             {isUploading ? (

@@ -6,6 +6,7 @@ import { User } from "@/lib/supabase";
 import { UserProfile } from "./user-profile";
 import { Camera } from "./camera";
 import { CameraDebug } from "./camera-debug";
+import { motion, Variants } from "framer-motion";
 import {
   AlertCircle,
   ArrowLeft,
@@ -320,11 +321,37 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   };
 
   // Render different content based on current step
+  // Animation variants for step transitions
+  const stepVariants: Variants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.4,
+        ease: "circOut", // Using a named easing function
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: -20,
+      transition: {
+        duration: 0.3,
+      },
+    },
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case "info":
         return (
-          <>
+          <motion.div
+            key="info-step"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={stepVariants}
+          >
             <CardHeader>
               <CardTitle>Visitor Information</CardTitle>
               <CardDescription>
@@ -353,12 +380,16 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 Continue <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardFooter>
-          </>
+          </motion.div>
         );
 
       case "photo":
         return (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <CardHeader>
               <CardTitle>Take a Photo</CardTitle>
               <CardDescription>
@@ -531,25 +562,29 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
             </CardFooter>
-          </>
+          </motion.div>
         );
 
       case "preview":
         return (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <CardHeader>
-              <CardTitle>Avatar Preview</CardTitle>
+              <CardTitle>Your Event Badge</CardTitle>
               <CardDescription>
-                Review your avatar before printing
+                Your personalized Salesforce Data Cloud event badge
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 mt-2">
               {badgePreviewUrl ? (
                 <div className="space-y-4">
                   <div className="flex justify-center">
                     <Image
-                      width={200}
-                      height={200}
+                      width={100}
+                      height={100}
                       src={badgePreviewUrl}
                       alt="Avatar Preview"
                       priority
@@ -560,29 +595,33 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   {/* Blended Badge for Printing */}
                   {blendedBadgeUrl && (
                     <div className="mt-6">
-                      <CardTitle>Print-Ready Badge</CardTitle>
+                      <CardTitle>
+                        Your Salesforce Data Cloud Event Badge
+                      </CardTitle>
                       <CardDescription>
-                        This badge is ready for printing
+                        Print this badge as your exclusive
                       </CardDescription>
                       <div className="flex justify-center mt-2">
-                        <div className="overflow-hidden border border-muted w-full max-w-sm">
+                        <div className="overflow-hidden border-2 border-secondary rounded-lg w-full max-w-sm">
                           <CardContent className="p-0 flex justify-center items-center">
                             {isBlendedBadgeLoading ? (
                               <div className="flex flex-col items-center justify-center p-4">
                                 <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
                                 <p className="text-sm text-muted-foreground">
-                                  Generating print badge...
+                                  Generating your badge...
                                 </p>
                               </div>
                             ) : (
-                              <Image
-                                width={400}
-                                height={300}
-                                src={blendedBadgeUrl}
-                                alt="Print-Ready Badge"
-                                priority
-                                className="w-full object-contain"
-                              />
+                              <div className="relative w-full">
+                                <Image
+                                  width={400}
+                                  height={300}
+                                  src={blendedBadgeUrl}
+                                  alt="Print-Ready Badge"
+                                  priority
+                                  className="w-full object-contain"
+                                />
+                              </div>
                             )}
                           </CardContent>
                         </div>
@@ -605,20 +644,34 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 </Alert>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col space-y-3">
+            <CardFooter className="flex flex-col space-y-4">
+              <div className="bg-muted/30 p-4 rounded-lg text-sm">
+                <h4 className="font-medium mb-2">Print Instructions:</h4>
+                <ol className="list-decimal pl-5 space-y-1">
+                  <li>Click the "Print My Badge" button below</li>
+                  <li>
+                    Show your badge to the event staff to complete registration
+                  </li>
+                </ol>
+              </div>
+
               <Button
                 onClick={handleRegister}
                 disabled={!badgePreviewUrl || isLoading}
                 className="w-full"
               >
                 {isLoading ? (
-                  "Processing..."
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />{" "}
+                    Processing...
+                  </>
                 ) : (
                   <>
-                    Print Badge <Printer className="ml-2 h-4 w-4" />
+                    Print My Badge <Printer className="ml-2 h-5 w-5" />
                   </>
                 )}
               </Button>
+
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep("photo")}
@@ -628,56 +681,92 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to Photo
               </Button>
             </CardFooter>
-          </>
+          </motion.div>
         );
 
       case "printing":
         return (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <CardHeader>
-              <CardTitle>Printing Badge</CardTitle>
-              <CardDescription>
-                Please wait while we prepare your badge
-              </CardDescription>
+              <CardTitle>Printing Your Badge</CardTitle>
+              <CardDescription>Creating your exclusive badge</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center py-8 space-y-6">
               <div className="text-center">
                 <div className="mb-6 flex justify-center">
-                  <Loader2 className="h-16 w-16 animate-spin text-primary" />
+                  <Loader2 className="h-16 w-16 animate-spin text-secondary" />
                 </div>
                 <p className="text-lg font-medium mb-2">
-                  Printing in progress... {printProgress}%
+                  Printing your badge... {printProgress}%
                 </p>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Your badge will be ready shortly
+                  Your exclusive Salesforce Data Cloud event badge will be ready
+                  shortly
                 </p>
-                <Progress value={printProgress} className="h-2 w-64 mx-auto" />
+                <Progress
+                  value={printProgress}
+                  className="h-2 w-64 mx-auto bg-muted/30"
+                />
+                <div className="mt-6 text-sm text-muted-foreground">
+                  <p>Cost-Optimized Lead Generation & Revenue Growth</p>
+                  <p>15 August 2025 • Studio 4, Kimpton Maa-Lai Bangkok</p>
+                </div>
               </div>
             </CardContent>
-          </>
+          </motion.div>
         );
 
       case "complete":
         return (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <CardHeader>
-              <CardTitle>Registration Complete</CardTitle>
+              <CardTitle>Your Badge is Ready!</CardTitle>
               <CardDescription>
-                Your badge has been printed successfully
+                Your exclusive Salesforce Data Cloud event badge has been
+                printed
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center py-8">
               <div className="text-center">
-                <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-secondary/20 text-secondary rounded-full flex items-center justify-center mx-auto mb-6">
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h3 className="text-xl font-medium mb-2">
                   Thank You, {user.name}!
                 </h3>
-                <p className="text-muted-foreground max-w-xs mx-auto">
-                  Your registration is complete and your badge has been printed.
-                  Please collect your badge and enjoy the event!
+                <p className="text-muted-foreground max-w-xs mx-auto mb-4">
+                  Your Salesforce Data Cloud event badge has been printed
+                  successfully. Please collect your badge from the printer and
+                  return to the event.
                 </p>
+                <div className="bg-muted/30 p-4 rounded-lg text-sm text-left max-w-xs mx-auto">
+                  <h4 className="font-medium mb-2">Event Details:</h4>
+                  <ul className="space-y-1">
+                    <li>
+                      <span className="font-medium">Date:</span> 15 August 2025
+                    </li>
+                    <li>
+                      <span className="font-medium">Time:</span> 13:30 - 16:30
+                      PM
+                    </li>
+                    <li>
+                      <span className="font-medium">Location:</span> Studio 4,
+                      6th Floor
+                    </li>
+                    <li>
+                      <span className="font-medium">Venue:</span> Kimpton
+                      Maa-Lai Bangkok
+                    </li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
@@ -688,15 +777,23 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 Return to Home
               </Button>
             </CardFooter>
-          </>
+          </motion.div>
         );
     }
   };
 
+  // Define animation variants for card transitions
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <Card className="w-full max-w-lg mx-auto shadow-md">
-      {renderStepIndicator()}
-      {renderStepContent()}
-    </Card>
+    <motion.div initial="hidden" animate="visible" variants={cardVariants}>
+      <Card className="w-full max-w-lg mx-auto shadow-md">
+        {renderStepIndicator()}
+        {renderStepContent()}
+      </Card>
+    </motion.div>
   );
 }
