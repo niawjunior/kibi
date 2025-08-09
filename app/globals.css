@@ -59,79 +59,79 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  /* IIG Dark Blue */
-  --primary: oklch(0.15 0.05 265);
-  --primary-foreground: oklch(0.985 0 0);
+  --background: #ffffff;
+  --foreground: #00175f;
+  --card: #ffffff;
+  --card-foreground: #00175f;
+  --popover: #ffffff;
+  --popover-foreground: #00175f;
+  /* Company Dark Blue */
+  --primary: #00175f;
+  --primary-foreground: #ffffff;
   /* White */
-  --secondary: oklch(0.985 0 0);
-  --secondary-foreground: oklch(0.15 0.05 265);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --secondary: #ffffff;
+  --secondary-foreground: #00175f;
+  --muted: #f5f5f5;
+  --muted-foreground: #6b7280;
   /* Medium blue */
-  --accent: oklch(0.3 0.1 265);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.15 0.05 265);
-  /* Chart colors matching IIG logo */
-  --chart-1: oklch(0.15 0.05 265); /* Dark blue */
-  --chart-2: oklch(0.3 0.1 265); /* Medium blue */
-  --chart-3: oklch(0.985 0 0); /* White */
-  --chart-4: oklch(0.2 0.07 265); /* Slightly lighter blue */
-  --chart-5: oklch(0.25 0.08 265); /* Another blue shade */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.15 0.05 265); /* Dark blue */
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.3 0.1 265); /* Medium blue */
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --accent: #0025a0;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #00175f;
+  /* Chart colors matching company branding */
+  --chart-1: #00175f; /* Dark blue */
+  --chart-2: #0025a0; /* Medium blue */
+  --chart-3: #ffffff; /* White */
+  --chart-4: #001d7a; /* Slightly lighter blue */
+  --chart-5: #002299; /* Another blue shade */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #00175f;
+  --sidebar-primary: #00175f; /* Dark blue */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0025a0; /* Medium blue */
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #b4b4b4;
 }
 
 .dark {
-  --background: oklch(0.15 0.05 265); /* IIG Dark blue background */
-  --foreground: oklch(0.985 0 0); /* White text */
-  --card: oklch(0.18 0.05 265); /* Slightly lighter dark blue */
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.18 0.05 265);
-  --popover-foreground: oklch(0.985 0 0);
+  --background: #00175f; /* Company Dark blue background */
+  --foreground: #ffffff; /* White text */
+  --card: #001d7a; /* Slightly lighter dark blue */
+  --card-foreground: #ffffff;
+  --popover: #001d7a;
+  --popover-foreground: #ffffff;
   /* White for primary elements */
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.15 0.05 265);
+  --primary: #ffffff;
+  --primary-foreground: #00175f;
   /* Medium blue */
-  --secondary: oklch(0.3 0.1 265);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.22 0.05 265);
-  --muted-foreground: oklch(0.8 0 0);
+  --secondary: #0025a0;
+  --secondary-foreground: #ffffff;
+  --muted: #002299;
+  --muted-foreground: #e5e7eb;
   /* Lighter blue */
-  --accent: oklch(0.25 0.08 265);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.985 0 0 / 50%);
-  /* Chart colors matching IIG logo */
-  --chart-1: oklch(0.985 0 0); /* White */
-  --chart-2: oklch(0.3 0.1 265); /* Medium blue */
-  --chart-3: oklch(0.25 0.08 265); /* Lighter blue */
-  --chart-4: oklch(0.2 0.07 265); /* Another blue shade */
-  --chart-5: oklch(0.15 0.05 265); /* Dark blue */
-  --sidebar: oklch(0.18 0.05 265); /* Slightly lighter dark blue */
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.985 0 0); /* White */
-  --sidebar-primary-foreground: oklch(0.15 0.05 265);
-  --sidebar-accent: oklch(0.25 0.08 265); /* Lighter blue */
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.985 0 0 / 50%);
+  --accent: #002299;
+  --accent-foreground: #ffffff;
+  --destructive: #fca5a5;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: rgba(255, 255, 255, 0.5);
+  /* Chart colors matching company branding */
+  --chart-1: #ffffff; /* White */
+  --chart-2: #0025a0; /* Medium blue */
+  --chart-3: #002299; /* Lighter blue */
+  --chart-4: #001d7a; /* Another blue shade */
+  --chart-5: #00175f; /* Dark blue */
+  --sidebar: #001d7a; /* Slightly lighter dark blue */
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff; /* White */
+  --sidebar-primary-foreground: #00175f;
+  --sidebar-accent: #002299; /* Lighter blue */
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: rgba(255, 255, 255, 0.5);
 }
 
 @layer base {
@@ -139,6 +139,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-primary text-foreground;
+    background-image: url("/bg_dot.png");
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 }

@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import QRCode from "react-qr-code";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { Header } from "@/components/header";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -122,233 +123,242 @@ export default function GenerateQRPage() {
   };
 
   return (
-    <div className="container mx-auto py-10 px-2">
-      <Button variant="outline" onClick={() => router.push("/")}>
-        &larr; Back to Home
-      </Button>
-      <div className="flex items-center justify-center flex-wrap mb-8">
-        <h1 className="text-3xl font-bold text-center">
-          Generate Visitor QR Code
-        </h1>
-      </div>
+    <>
+      <Header />
+      <div className="container mx-auto py-4 px-2">
+        <Button variant="default" onClick={() => router.push("/")}>
+          &larr; Back to Home
+        </Button>
+        <div className="flex items-center justify-center flex-wrap mb-8 mt-4">
+          <h1 className="text-3xl text-white font-bold text-center">
+            Generate Visitor QR Code
+          </h1>
+        </div>
 
-      {!qrCodeData ? (
-        <Card className="max-w-lg mx-auto">
-          <CardHeader>
-            <CardTitle>Visitor Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+        {!qrCodeData ? (
+          <Card className="max-w-lg mx-auto">
+            <CardHeader>
+              <CardTitle>Visitor Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter first name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="last_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter last name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="company"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter company name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Position</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter job position" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter email address"
-                          type="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter phone number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                  disabled={isSubmitting}
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    "Generate QR Code"
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="max-w-lg mx-auto">
-          <CardHeader>
-            <CardTitle className="text-center">Your QR Code</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin mb-4" />
-                <p className="text-sm text-muted-foreground">Loading visitor information...</p>
-              </div>
-            ) : registeredUser ? (
-              <div className="w-full space-y-6">
-                {/* Display registered user information with photo and badge */}
-                <UserProfile 
-                  user={registeredUser} 
-                  photoUrl={registeredUser.photo_url} 
-                  badgeUrl={registeredUser.badge_url} 
-                  showBadge={true} 
-                />
-                
-                {/* Display larger badge if available */}
-                {registeredUser.badge_url && (
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium text-center">Visitor Badge Preview</h3>
-                    <div className="flex justify-center">
-                      <div className="relative h-64 w-48 border rounded-md overflow-hidden">
-                        <Image 
-                          src={registeredUser.badge_url}
-                          alt="Visitor Badge"
-                          fill
-                          className="object-contain"
-                        />
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter first name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="last_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter last name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter company name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Position</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter job position" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter email address"
+                            type="email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter phone number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      "Generate QR Code"
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="max-w-lg mx-auto">
+            <CardHeader>
+              <CardTitle className="text-center">Your QR Code</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin mb-4" />
+                  <p className="text-sm text-muted-foreground">
+                    Loading visitor information...
+                  </p>
+                </div>
+              ) : registeredUser ? (
+                <div className="w-full space-y-6">
+                  {/* Display registered user information with photo and badge */}
+                  <UserProfile
+                    user={registeredUser}
+                    photoUrl={registeredUser.photo_url}
+                    badgeUrl={registeredUser.badge_url}
+                    showBadge={true}
+                  />
+
+                  {/* Display larger badge if available */}
+                  {registeredUser.badge_url && (
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium text-center">
+                        Visitor Badge Preview
+                      </h3>
+                      <div className="flex justify-center">
+                        <div className="relative h-64 w-48 border rounded-md overflow-hidden">
+                          <Image
+                            src={registeredUser.badge_url}
+                            alt="Visitor Badge"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
                       </div>
                     </div>
+                  )}
+
+                  <div className="pt-4 border-t">
+                    <p className="text-center mb-4">
+                      Reference ID:{" "}
+                      <span className="font-bold">{visitorRef}</span>
+                    </p>
+                    <div className="bg-white p-4 rounded-md mb-4">
+                      <QRCode value={qrCodeData} size={200} />
+                    </div>
                   </div>
-                )}
-                
-                <div className="pt-4 border-t">
-                  <p className="text-center mb-4">
-                    Reference ID: <span className="font-bold">{visitorRef}</span>
-                  </p>
+                </div>
+              ) : (
+                <>
                   <div className="bg-white p-4 rounded-md mb-4">
                     <QRCode value={qrCodeData} size={200} />
                   </div>
-                </div>
+
+                  <p className="text-center mb-4">
+                    Reference ID:{" "}
+                    <span className="font-bold">{visitorRef}</span>
+                  </p>
+
+                  <p className="text-sm text-muted-foreground text-center mb-6">
+                    Scan this QR code at the event registration kiosk
+                  </p>
+                </>
+              )}
+
+              <div className="flex gap-4 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setQrCodeData(null);
+                    setVisitorRef(null);
+                    setRegisteredUser(null);
+                    form.reset();
+                  }}
+                >
+                  Register Another
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    // Create a temporary link and trigger download
+                    const canvas = document.querySelector("canvas");
+                    if (canvas) {
+                      const link = document.createElement("a");
+                      link.download = `qrcode-${visitorRef}.png`;
+                      link.href = canvas.toDataURL("image/png");
+                      link.click();
+                    }
+                  }}
+                >
+                  Download QR
+                </Button>
               </div>
-            ) : (
-              <>
-                <div className="bg-white p-4 rounded-md mb-4">
-                  <QRCode value={qrCodeData} size={200} />
-                </div>
-
-                <p className="text-center mb-4">
-                  Reference ID: <span className="font-bold">{visitorRef}</span>
-                </p>
-
-                <p className="text-sm text-muted-foreground text-center mb-6">
-                  Scan this QR code at the event registration kiosk
-                </p>
-              </>
-            )}
-
-            <div className="flex gap-4 mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setQrCodeData(null);
-                  setVisitorRef(null);
-                  setRegisteredUser(null);
-                  form.reset();
-                }}
-              >
-                Register Another
-              </Button>
-
-              <Button
-                onClick={() => {
-                  // Create a temporary link and trigger download
-                  const canvas = document.querySelector("canvas");
-                  if (canvas) {
-                    const link = document.createElement("a");
-                    link.download = `qrcode-${visitorRef}.png`;
-                    link.href = canvas.toDataURL("image/png");
-                    link.click();
-                  }
-                }}
-              >
-                Download QR
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </>
   );
 }
