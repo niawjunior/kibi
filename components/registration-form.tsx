@@ -123,13 +123,15 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     setError(null);
 
     try {
-      // Check if user is registered AND has not taken a new photo
-      // If the current photoUrl is the same as the one stored in user.photo_url, use existing badge
+      // Only use existing badge if user is registered, has a badge_url and photo_url,
+      // the photo hasn't changed, AND the avatar style hasn't been changed
+      // (we track this by checking if badgePreviewUrl is null - it gets cleared when style changes)
       if (
         user.registered &&
         user.badge_url &&
         user.photo_url &&
-        photoUrl === user.photo_url
+        photoUrl === user.photo_url &&
+        badgePreviewUrl !== null // If badgePreviewUrl is null, it means style was changed
       ) {
         console.log(
           "Using existing badge URL for registered user:",
@@ -390,7 +392,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 Please take a photo for your badge
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 mt-2">
               <div className="flex flex-col md:flex-row gap-4">
                 {/* Camera on the left */}
                 <div className="md:w-1/2">
@@ -477,7 +479,16 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   >
                     <Avatar className="h-12 w-12 ">
                       <AvatarImage
-                        onClick={() => setSelectedAvatarStyle("photo-shoot")}
+                        onClick={() => {
+                          setSelectedAvatarStyle("photo-shoot");
+                          // Clear badge preview when style changes
+                          if (
+                            selectedAvatarStyle !== "photo-shoot" &&
+                            photoUrl
+                          ) {
+                            setBadgePreviewUrl(null);
+                          }
+                        }}
                         className={`h-full w-full object-cover ${
                           selectedAvatarStyle === "photo-shoot"
                             ? "scale-110"
@@ -496,7 +507,13 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   >
                     <Avatar className="h-12 w-12 ">
                       <AvatarImage
-                        onClick={() => setSelectedAvatarStyle("anime")}
+                        onClick={() => {
+                          setSelectedAvatarStyle("anime");
+                          // Clear badge preview when style changes
+                          if (selectedAvatarStyle !== "anime" && photoUrl) {
+                            setBadgePreviewUrl(null);
+                          }
+                        }}
                         className={`h-full w-full object-cover ${
                           selectedAvatarStyle === "anime" ? "scale-110" : ""
                         }`}
@@ -515,7 +532,13 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   >
                     <Avatar className="h-12 w-12 ">
                       <AvatarImage
-                        onClick={() => setSelectedAvatarStyle("80s-Glam")}
+                        onClick={() => {
+                          setSelectedAvatarStyle("80s-Glam");
+                          // Clear badge preview when style changes
+                          if (selectedAvatarStyle !== "80s-Glam" && photoUrl) {
+                            setBadgePreviewUrl(null);
+                          }
+                        }}
                         className={`h-full w-full object-cover ${
                           selectedAvatarStyle === "80s-Glam" ? "scale-110" : ""
                         }`}
@@ -754,8 +777,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 </h3>
                 <p className="text-muted-foreground max-w-xs mx-auto mb-4">
                   Your Salesforce Data Cloud event badge has been printed
-                  successfully. Please collect your badge from the printer and
-                  return to the event.
+                  successfully. Please collect your badge from the printer.
                 </p>
                 <div className="bg-muted/30 p-4 rounded-lg text-sm text-left max-w-xs mx-auto">
                   <h4 className="font-medium mb-2">Event Details:</h4>
