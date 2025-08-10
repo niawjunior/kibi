@@ -37,10 +37,7 @@ import {
   generateBlendedBadge,
   AvatarStyle,
 } from "@/lib/badge";
-import {
-  prepareImageForPrinting as generatePrintData,
-  generateRawBtUrl as generateRawbtUrl,
-} from "@/lib/printer";
+import { generateRawBtUrl as generateRawbtUrl } from "@/lib/printer";
 import { Progress } from "@/components/ui/progress";
 
 interface RegistrationFormProps {
@@ -54,7 +51,6 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(
     user.photo_url || null
   );
-  const [photoBase64, setPhotoBase64] = useState<string>("");
   const [badgePreviewUrl, setBadgePreviewUrl] = useState<string | null>(
     user.badge_url || null
   );
@@ -89,7 +85,6 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   const handlePhotoCapture = async (imageUrl: string, imageBase64: string) => {
     setIsPhotoLoading(true);
     setIsImageLoading(true);
-    setPhotoBase64(imageBase64); // Keep base64 for printing
     setError(null);
 
     try {
@@ -250,21 +245,24 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
           if (progress >= 100) {
             clearInterval(interval);
             try {
-              // Generate print data (ESC/POS commands)
-              const printData = generatePrintData(photoBase64);
-
               // Generate RAWBT URL for Bluetooth printing
-              const rawbtUrl = generateRawbtUrl(printData);
+              console.log("Photo Base64:", blendedBadgeUrl);
+              const rawbtUrl = generateRawbtUrl(blendedBadgeUrl!);
 
               // Log the URL (in a real app, we would open this URL to trigger printing)
               console.log("Print URL:", rawbtUrl);
 
+              // Open the URL in a new tab to trigger printing
+              window.open(rawbtUrl, "_blank");
+
               // Move to completion step
               setTimeout(() => setCurrentStep("complete"), 500);
+              setIsLoading(false);
             } catch (err) {
               console.error("Printing error:", err);
               setError("Failed to print badge. Please try again.");
               setIsLoading(false);
+              setCurrentStep("complete");
             }
           }
         }, 200);
