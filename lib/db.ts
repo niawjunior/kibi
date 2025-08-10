@@ -1,25 +1,20 @@
-import { supabase, User } from "./supabase";
-import { v4 as uuidv4 } from "uuid";
+import { User } from "./supabase";
 
 /**
- * Get user by reference ID from Supabase
+ * Get user by reference ID from API
  * @param ref - Unique reference ID for the user (from QR code)
  * @returns User object or null if not found
  */
 export async function getUserByRef(ref: string): Promise<User | null> {
   try {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("ref", ref)
-      .single();
-
-    if (error) {
-      console.error("Error fetching user:", error);
-      return null;
+    const response = await fetch(`/api/users/get-by-ref?ref=${encodeURIComponent(ref)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching user: ${response.status} ${response.statusText}`);
     }
-
-    return data as User;
+    
+    const data = await response.json();
+    return data.user as User;
   } catch (error) {
     console.error("Error fetching user:", error);
     return null;
@@ -27,7 +22,7 @@ export async function getUserByRef(ref: string): Promise<User | null> {
 }
 
 /**
- * Update user registration status and photo URL in Supabase
+ * Update user registration status and photo URL via API
  * @param ref - Unique reference ID for the user
  * @param photoUrl - URL or base64 data of the user's photo
  * @param badgeUrl - Optional URL of the user's badge image
@@ -39,35 +34,24 @@ export async function updateUserRegistration(
   badgeUrl?: string
 ): Promise<User | null> {
   try {
-    const updateData: {
-      registered: boolean;
-      photo_url: string;
-      badge_url?: string;
-      updated_at: string;
-    } = {
-      registered: true,
-      photo_url: photoUrl,
-      updated_at: new Date().toISOString(),
-    };
+    const response = await fetch('/api/users/update-registration', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ref,
+        photoUrl,
+        badgeUrl,
+      }),
+    });
 
-    // Add badge_url if provided
-    if (badgeUrl) {
-      updateData.badge_url = badgeUrl;
+    if (!response.ok) {
+      throw new Error(`Error updating user registration: ${response.status} ${response.statusText}`);
     }
 
-    const { data, error } = await supabase
-      .from("users")
-      .update(updateData)
-      .eq("ref", ref)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error updating user registration:", error);
-      return null;
-    }
-
-    return data as User;
+    const data = await response.json();
+    return data.user as User;
   } catch (error) {
     console.error("Error updating user registration:", error);
     return null;
@@ -75,23 +59,20 @@ export async function updateUserRegistration(
 }
 
 /**
- * Get all users for an event
+ * Get all users for an event via API
  * @param eventId - ID of the event
  * @returns Array of users or empty array if none found
  */
 export async function getUsersByEvent(eventId: string): Promise<User[]> {
   try {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("event_id", eventId);
-
-    if (error) {
-      console.error("Error fetching users by event:", error);
-      return [];
+    const response = await fetch(`/api/users/get-by-event?eventId=${encodeURIComponent(eventId)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching users by event: ${response.status} ${response.statusText}`);
     }
-
-    return data as User[];
+    
+    const data = await response.json();
+    return data.users as User[];
   } catch (error) {
     console.error("Error fetching users by event:", error);
     return [];
@@ -105,7 +86,7 @@ export async function getUsersByEvent(eventId: string): Promise<User[]> {
  * @returns Public URL of the uploaded image or null if failed
  */
 /**
- * Create a new visitor in Supabase
+ * Create a new visitor via API
  * @param visitorData - Visitor information to save
  * @returns Created visitor object or null if failed
  */
@@ -123,27 +104,31 @@ export async function createVisitor(visitorData: {
   photo_url: string | null;
 }): Promise<User | null> {
   try {
-    const { data, error } = await supabase
-      .from("users")
-      .insert([
-        {
-          ...visitorData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ])
-      .select()
-      .single();
+    // Log the request for debugging
+    console.log("Creating visitor with data:", {
+      ref: visitorData.ref,
+      name: visitorData.name,
+      email: visitorData.email,
+    });
 
-    if (error) {
-      console.error("Error creating visitor:", error);
-      return null;
+    const response = await fetch('/api/users/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(visitorData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error creating visitor: ${response.status} ${response.statusText}`);
     }
 
-    return data as User;
+    const data = await response.json();
+    return data.user as User;
   } catch (error) {
     console.error("Error creating visitor:", error);
-    return null;
+    throw error; // Re-throw to provide better error handling in the UI
   }
 }
 
@@ -152,40 +137,24 @@ export async function uploadUserPhoto(
   userRef: string
 ): Promise<string | null> {
   try {
-    // Remove the data URL prefix to get just the base64 data
-    const base64Data = base64Image.split(",")[1];
-    if (!base64Data) {
-      console.error("Invalid base64 image format");
-      return null;
+    const response = await fetch('/api/storage/upload-photo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        base64Image,
+        userRef,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error uploading photo: ${response.status} ${response.statusText}`);
     }
 
-    // Convert base64 to binary data
-    const binaryData = Buffer.from(base64Data, "base64");
-
-    // Generate a unique filename with user reference and timestamp
-    const fileExt = "jpg";
-    const fileName = `${userRef}_${uuidv4()}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    // Upload to Supabase storage
-    const { error } = await supabase.storage
-      .from("photos")
-      .upload(filePath, binaryData, {
-        contentType: "image/jpeg",
-        upsert: true,
-      });
-
-    if (error) {
-      console.error("Error uploading photo to storage:", error);
-      return null;
-    }
-
-    // Get the public URL
-    const { data: publicUrlData } = supabase.storage
-      .from("photos")
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
+    const data = await response.json();
+    return data.url;
   } catch (error) {
     console.error("Error uploading photo:", error);
     return null;
@@ -193,7 +162,7 @@ export async function uploadUserPhoto(
 }
 
 /**
- * Upload badge image to Supabase storage and return the public URL
+ * Upload badge image via API and return the public URL
  * @param base64Image - Base64 encoded image data
  * @param userRef - User reference ID for filename
  * @returns Public URL of the uploaded image or null if failed
@@ -208,40 +177,24 @@ export async function uploadBadgeImage(
       return base64Image; // Return the URL as is
     }
 
-    // Remove the data URL prefix to get just the base64 data
-    const base64Data = base64Image.split(",")[1];
-    if (!base64Data) {
-      console.error("Invalid base64 image format");
-      return null;
+    const response = await fetch('/api/storage/upload-badge', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        base64Image,
+        userRef,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error uploading badge: ${response.status} ${response.statusText}`);
     }
 
-    // Convert base64 to binary data
-    const binaryData = Buffer.from(base64Data, "base64");
-
-    // Generate a unique filename with user reference and timestamp
-    const fileExt = "png";
-    const fileName = `badge_${userRef}_${uuidv4()}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    // Upload to Supabase storage
-    const { error } = await supabase.storage
-      .from("badges")
-      .upload(filePath, binaryData, {
-        contentType: "image/png",
-        upsert: true,
-      });
-
-    if (error) {
-      console.error("Error uploading badge to storage:", error);
-      return null;
-    }
-
-    // Get the public URL
-    const { data: publicUrlData } = supabase.storage
-      .from("badges")
-      .getPublicUrl(filePath);
-
-    return publicUrlData.publicUrl;
+    const data = await response.json();
+    return data.url;
   } catch (error) {
     console.error("Error uploading badge:", error);
     return null;

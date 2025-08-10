@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createVisitor, getUserByRef } from "@/lib/db";
+import { createVisitor } from "@/lib/db";
 import { UserProfile } from "@/components/user-profile";
 import { User } from "@/lib/supabase";
 
@@ -62,30 +62,6 @@ export default function GenerateQRPage() {
       phone: "",
     },
   });
-
-  // Fetch user data when reference ID is available
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (visitorRef) {
-        setIsLoading(true);
-        try {
-          const userData = await getUserByRef(visitorRef);
-          console.log("Fetched user data:", userData);
-          if (userData && userData.registered) {
-            setRegisteredUser(userData);
-          } else {
-            setRegisteredUser(null);
-          }
-        } catch (err) {
-          console.error("Error fetching user data:", err);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchUserData();
-  }, [visitorRef]);
 
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
@@ -339,21 +315,6 @@ export default function GenerateQRPage() {
                   }}
                 >
                   Register Another
-                </Button>
-
-                <Button
-                  onClick={() => {
-                    // Create a temporary link and trigger download
-                    const canvas = document.querySelector("canvas");
-                    if (canvas) {
-                      const link = document.createElement("a");
-                      link.download = `qrcode-${visitorRef}.png`;
-                      link.href = canvas.toDataURL("image/png");
-                      link.click();
-                    }
-                  }}
-                >
-                  Download QR
                 </Button>
               </div>
             </CardContent>
