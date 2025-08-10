@@ -206,6 +206,8 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
     try {
       // Upload badge image to storage if we have a badge preview
       let badgeUrl: string | undefined = undefined;
+      let cardUrl: string | undefined = undefined;
+      
       if (badgePreviewUrl) {
         const uploadedBadgeUrl = await uploadBadgeImage(
           badgePreviewUrl,
@@ -219,13 +221,30 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
           );
         }
       }
+      
+      // Upload blended badge (card) image if available
+      if (blendedBadgeUrl) {
+        // For simplicity, we'll use the same upload function but with a different prefix
+        const uploadedCardUrl = await uploadBadgeImage(
+          blendedBadgeUrl,
+          `${user.ref}-card`
+        );
+        if (uploadedCardUrl) {
+          cardUrl = uploadedCardUrl;
+        } else {
+          console.warn(
+            "Failed to upload card image, continuing with registration"
+          );
+        }
+      }
 
       // The photoUrl is now either a Supabase storage URL or base64 data
       // updateUserRegistration will save this URL to the database
       const updatedUser = await updateUserRegistration(
         user.ref,
         photoUrl,
-        badgeUrl
+        badgeUrl,
+        cardUrl
       );
 
       if (!updatedUser) {

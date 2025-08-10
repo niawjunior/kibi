@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 export async function PUT(request: NextRequest) {
   try {
     // Parse the request body
-    const { ref, photoUrl, badgeUrl } = await request.json();
+    const { ref, photoUrl, badgeUrl, cardUrl } = await request.json();
 
     if (!ref || !photoUrl) {
       return NextResponse.json(
@@ -18,6 +18,7 @@ export async function PUT(request: NextRequest) {
       registered: boolean;
       photo_url: string;
       badge_url?: string;
+      card_url?: string;
       updated_at: string;
     } = {
       registered: true,
@@ -28,6 +29,11 @@ export async function PUT(request: NextRequest) {
     // Add badge_url if provided
     if (badgeUrl) {
       updateData.badge_url = badgeUrl;
+    }
+    
+    // Add card_url if provided
+    if (cardUrl) {
+      updateData.card_url = cardUrl;
     }
 
     // Update in Supabase

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { Header } from "@/components/header";
 import { motion } from "framer-motion";
 
 export default function RegistrationClient() {
@@ -65,7 +64,6 @@ export default function RegistrationClient() {
 
   return (
     <>
-      <Header />
       <div className="container mx-auto px-4 py-8">
         <motion.div
           className="text-center mb-8"

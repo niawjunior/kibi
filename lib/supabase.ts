@@ -32,4 +32,5 @@ export interface User {
   registered: boolean;
   photo_url?: string;
   badge_url?: string;
+  card_url?: string;
 }

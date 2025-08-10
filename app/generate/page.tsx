@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import QRCode from "react-qr-code";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { Header } from "@/components/header";
+import Header from "@/components/header";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +41,6 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function GenerateQRPage() {
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
@@ -102,9 +100,6 @@ export default function GenerateQRPage() {
     <>
       <Header />
       <div className="container mx-auto py-4 px-2">
-        <Button variant="salesforce" onClick={() => router.push("/")}>
-          &larr; Back to Home
-        </Button>
         <div className="flex items-center justify-center flex-wrap mb-8 mt-4">
           <h1 className="text-3xl text-white font-bold text-center">
             Generate Visitor QR Code

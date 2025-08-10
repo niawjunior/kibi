@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { QrCode, Loader2 } from "lucide-react";
 import RegistrationClient from "./registration-client";
+import Header from "@/components/header";
 
 // Loading component for Suspense fallback
 function LoadingCard() {
@@ -37,6 +38,7 @@ export default function RegisterPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<LoadingCard />}>
+        <Header />
         <RegistrationClient />
       </Suspense>
     </div>
