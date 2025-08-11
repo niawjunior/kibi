@@ -11,32 +11,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { QrCode, Camera, Printer, BadgeCheck, ArrowRight, Users } from "lucide-react";
+import {
+  QrCode,
+  Camera,
+  Printer,
+  BadgeCheck,
+  ArrowRight,
+  Users,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Home() {
   return (
     <>
       <Header />
-      <motion.div 
+      <motion.div
         className="container mx-auto px-4 py-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
         <main className="flex min-h-screen flex-col items-center p-6 md:p-12">
-          <motion.div 
+          <motion.div
             className="w-full max-w-5xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <motion.div 
+            <motion.div
               className="text-center mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <motion.h1 
+              <motion.h1
                 className="text-4xl text-white font-bold mb-3"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -44,24 +51,27 @@ export default function Home() {
               >
                 AI Kiosk Event Registration
               </motion.h1>
-              <motion.p 
+              <motion.p
                 className="text-lg text-white max-w-2xl mx-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
                 A seamless registration experience for event visitors using QR
-                codes, camera capture, and Bluetooth printing
+                codes, camera capture
               </motion.p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="mt-8 mb-12 flex justify-center"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button asChild variant="salesforce" className="shadow-lg">
                   <Link href="/generate" className="flex items-center gap-2">
                     <QrCode className="h-4 w-4" />
@@ -71,17 +81,20 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="grid grid-cols-1 mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <motion.div whileHover={{ y: -5 }} transition={{ type: "spring" }}>
+              <motion.div
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring" }}
+              >
                 <Card className="md:col-span-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <motion.div 
+                      <motion.div
                         initial={{ rotate: -10 }}
                         animate={{ rotate: 0 }}
                         transition={{ delay: 0.6, type: "spring" }}
@@ -102,10 +115,11 @@ export default function Home() {
                     </p>
                     <p className="mb-4">
                       The registration process is simple and fast, ensuring a
-                      smooth check-in experience for all attendees while providing
-                      event organizers with accurate attendance tracking.
+                      smooth check-in experience for all attendees while
+                      providing event organizers with accurate attendance
+                      tracking.
                     </p>
-                    <motion.div 
+                    <motion.div
                       className="bg-muted p-4 rounded-lg border border-border mt-4"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -116,9 +130,7 @@ export default function Home() {
                         <li>QR code processing via kiosk scanner</li>
                         <li>Real-time database integration with Supabase</li>
                         <li>Browser-based camera capture</li>
-                        <li>
-                          Bluetooth thermal printer support via RAWBT protocol
-                        </li>
+
                         <li>Responsive design for various kiosk displays</li>
                       </ul>
                     </motion.div>
@@ -127,17 +139,23 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <motion.div whileHover={{ y: -5 }} transition={{ type: "spring" }}>
+              <motion.div
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring" }}
+              >
                 <Card className="h-full border-primary/20 shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, repeatDelay: 3 }}>
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ repeat: Infinity, repeatDelay: 3 }}
+                      >
                         <ArrowRight className="h-5 w-5 text-primary" />
                       </motion.div>
                       How It Works
@@ -148,7 +166,7 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <ol className="space-y-4">
-                      <motion.li 
+                      <motion.li
                         className="flex items-start gap-3"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -158,14 +176,16 @@ export default function Home() {
                           1
                         </div>
                         <div>
-                          <span className="font-medium">Kiosk Scans QR Code</span>
+                          <span className="font-medium">
+                            Kiosk Scans QR Code
+                          </span>
                           <p className="text-sm text-muted-foreground">
                             Kiosk scans visitor&apos;s QR code and opens the
                             website
                           </p>
                         </div>
                       </motion.li>
-                      <motion.li 
+                      <motion.li
                         className="flex items-start gap-3"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -175,13 +195,15 @@ export default function Home() {
                           2
                         </div>
                         <div>
-                          <span className="font-medium">Verify Information</span>
+                          <span className="font-medium">
+                            Verify Information
+                          </span>
                           <p className="text-sm text-muted-foreground">
                             System retrieves visitor data from Supabase
                           </p>
                         </div>
                       </motion.li>
-                      <motion.li 
+                      <motion.li
                         className="flex items-start gap-3"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -197,7 +219,7 @@ export default function Home() {
                           </p>
                         </div>
                       </motion.li>
-                      <motion.li 
+                      <motion.li
                         className="flex items-start gap-3"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -218,12 +240,15 @@ export default function Home() {
                 </Card>
               </motion.div>
 
-              <motion.div whileHover={{ y: -5 }} transition={{ type: "spring" }}>
+              <motion.div
+                whileHover={{ y: -5 }}
+                transition={{ type: "spring" }}
+              >
                 <Card className="h-full border-primary/20 shadow-lg hover:shadow-xl transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <motion.div 
-                        animate={{ rotate: [0, 10, 0] }} 
+                      <motion.div
+                        animate={{ rotate: [0, 10, 0] }}
                         transition={{ repeat: Infinity, repeatDelay: 4 }}
                       >
                         <Printer className="h-5 w-5 text-primary" />
@@ -235,7 +260,7 @@ export default function Home() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <motion.div 
+                    <motion.div
                       className="flex items-start gap-3"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -247,13 +272,13 @@ export default function Home() {
                       <div>
                         <span className="font-medium">QR Code Processing</span>
                         <p className="text-sm text-muted-foreground">
-                          Kiosk scans QR codes and passes the unique reference ID
-                          to our website via URL parameter
+                          Kiosk scans QR codes and passes the unique reference
+                          ID to our website via URL parameter
                         </p>
                       </div>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                       className="flex items-start gap-3"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -265,26 +290,8 @@ export default function Home() {
                       <div>
                         <span className="font-medium">Camera Integration</span>
                         <p className="text-sm text-muted-foreground">
-                          Uses browser MediaDevices API to access the kiosk camera
-                          for photo capture
-                        </p>
-                      </div>
-                    </motion.div>
-
-                    <motion.div 
-                      className="flex items-start gap-3"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 }}
-                    >
-                      <div className="bg-muted rounded-md p-2 flex-shrink-0">
-                        <Printer className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <span className="font-medium">Bluetooth Printing</span>
-                        <p className="text-sm text-muted-foreground">
-                          Utilizes RAWBT protocol to send ESC/POS commands to
-                          thermal printers
+                          Uses browser MediaDevices API to access the kiosk
+                          camera for photo capture
                         </p>
                       </div>
                     </motion.div>
@@ -302,7 +309,7 @@ export default function Home() {
               <Card className="border-primary/20 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <motion.div 
+                    <motion.div
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.8, type: "spring" }}
@@ -317,19 +324,25 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <p className="mb-4">
-                    For testing purposes, you can use the links below to simulate
-                    the kiosk scanning a QR code and opening the browser. Each
-                    link represents a different test user in our system, as if the
-                    kiosk had scanned their QR code.
+                    For testing purposes, you can use the links below to
+                    simulate the kiosk scanning a QR code and opening the
+                    browser. Each link represents a different test user in our
+                    system, as if the kiosk had scanned their QR code.
                   </p>
                 </CardContent>
                 <CardFooter className="flex flex-wrap gap-4">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
                     <Button asChild variant="salesforce">
                       <Link href="/register?id=TEST001">Test User 1</Link>
                     </Button>
                   </motion.div>
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
                     <Button asChild variant="salesforce">
                       <Link href="/register?id=TEST002">Test User 2</Link>
                     </Button>
@@ -338,7 +351,7 @@ export default function Home() {
               </Card>
             </motion.div>
 
-            <motion.footer 
+            <motion.footer
               className="mt-12 text-center text-sm text-muted-foreground"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

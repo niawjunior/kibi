@@ -37,7 +37,6 @@ import {
   generateBlendedBadge,
   AvatarStyle,
 } from "@/lib/badge";
-import { generateRawBtUrl as generateRawbtUrl } from "@/lib/printer";
 import { Progress } from "@/components/ui/progress";
 
 interface RegistrationFormProps {
@@ -207,7 +206,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       // Upload badge image to storage if we have a badge preview
       let badgeUrl: string | undefined = undefined;
       let cardUrl: string | undefined = undefined;
-      
+
       if (badgePreviewUrl) {
         const uploadedBadgeUrl = await uploadBadgeImage(
           badgePreviewUrl,
@@ -221,7 +220,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
           );
         }
       }
-      
+
       // Upload blended badge (card) image if available
       if (blendedBadgeUrl) {
         // For simplicity, we'll use the same upload function but with a different prefix
@@ -264,16 +263,6 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
           if (progress >= 100) {
             clearInterval(interval);
             try {
-              // Generate RAWBT URL for Bluetooth printing
-              console.log("Photo Base64:", blendedBadgeUrl);
-              const rawbtUrl = generateRawbtUrl(blendedBadgeUrl!);
-
-              // Log the URL (in a real app, we would open this URL to trigger printing)
-              console.log("Print URL:", rawbtUrl);
-
-              // Open the URL in a new tab to trigger printing
-              window.open(rawbtUrl, "_blank");
-
               // Move to completion step
               setTimeout(() => setCurrentStep("complete"), 500);
               setIsLoading(false);
@@ -648,7 +637,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                         Print this badge as your exclusive
                       </CardDescription>
                       <div className="flex justify-center mt-2">
-                        <div className="overflow-hidden border-2 border-secondary rounded-lg w-full max-w-sm">
+                        <div className="overflow-hidden rounded-lg w-full max-w-sm">
                           <CardContent className="p-0 flex justify-center items-center">
                             {isBlendedBadgeLoading ? (
                               <div className="flex flex-col items-center justify-center p-4">
@@ -658,16 +647,83 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                                 </p>
                               </div>
                             ) : (
-                              <div className="relative w-full">
+                              <motion.div
+                                className="relative w-full overflow-hidden rounded-lg p-1"
+                                initial={{
+                                  boxShadow: "0 0 0 rgba(59, 130, 246, 0)",
+                                }}
+                                animate={{
+                                  boxShadow: [
+                                    "0 0 5px rgba(59, 130, 246, 0.5)",
+                                    "0 0 20px rgba(59, 130, 246, 0.8)",
+                                    "0 0 5px rgba(59, 130, 246, 0.5)",
+                                  ],
+                                }}
+                                transition={{
+                                  duration: 3,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                }}
+                              >
+                                {/* Glassmorphism overlay */}
+                                <motion.div
+                                  className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-pink-500/10 z-10 rounded-lg backdrop-blur-[1px]"
+                                  animate={{
+                                    opacity: [0.4, 0.6, 0.4],
+                                    background: [
+                                      "linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.05), rgba(236, 72, 153, 0.1))",
+                                      "linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.1))",
+                                      "linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(236, 72, 153, 0.05), rgba(59, 130, 246, 0.1))",
+                                    ],
+                                  }}
+                                  transition={{
+                                    duration: 8,
+                                    repeat: Infinity,
+                                    ease: "linear",
+                                  }}
+                                />
+
+                                {/* Moving light effect */}
+                                <motion.div
+                                  className="absolute h-[200%] w-[50%] bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 z-20"
+                                  animate={{
+                                    left: ["-50%", "150%"],
+                                  }}
+                                  transition={{
+                                    duration: 4,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                    repeatDelay: 2,
+                                  }}
+                                />
+
+                                {/* Badge image */}
                                 <Image
                                   width={400}
                                   height={300}
                                   src={blendedBadgeUrl}
                                   alt="Print-Ready Badge"
                                   priority
-                                  className="w-full object-contain"
+                                  className="w-full object-contain relative z-0 rounded-[8px]"
                                 />
-                              </div>
+
+                                {/* Neon border effect */}
+                                <motion.div
+                                  className="absolute inset-0 rounded-lg border border-blue-400/30 z-30"
+                                  animate={{
+                                    boxShadow: [
+                                      "0 0 2px rgba(59, 130, 246, 0.3) inset",
+                                      "0 0 8px rgba(59, 130, 246, 0.6) inset",
+                                      "0 0 2px rgba(59, 130, 246, 0.3) inset",
+                                    ],
+                                  }}
+                                  transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                  }}
+                                />
+                              </motion.div>
                             )}
                           </CardContent>
                         </div>
@@ -794,7 +850,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 </h3>
                 <p className="text-muted-foreground max-w-xs mx-auto mb-4">
                   Your Salesforce Data Cloud event badge has been printed
-                  successfully. Please collect your badge from the printer.
+                  successfully. Please collect your badge from the staff.
                 </p>
                 <div className="bg-muted/30 p-4 rounded-lg text-sm text-left max-w-xs mx-auto">
                   <h4 className="font-medium mb-2">Event Details:</h4>
