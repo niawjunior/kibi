@@ -617,14 +617,42 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
               {badgePreviewUrl ? (
                 <div className="space-y-4">
                   <div className="flex justify-center">
-                    <Image
-                      width={100}
-                      height={100}
-                      src={badgePreviewUrl}
-                      alt="Avatar Preview"
-                      priority
-                      className="object-contain"
-                    />
+                    <div className="relative">
+                      {/* Rotating border effect */}
+                      <motion.div 
+                        className="absolute inset-0 rounded-full z-0"
+                        style={{ 
+                          width: "110px", 
+                          height: "110px", 
+                          top: "-5px", 
+                          left: "-5px",
+                          border: "2px solid transparent",
+                          borderRadius: "50%",
+                          borderTopColor: "#3b82f6",
+                          borderRightColor: "rgba(59, 130, 246, 0.6)",
+                          borderBottomColor: "rgba(59, 130, 246, 0.3)",
+                          borderLeftColor: "rgba(59, 130, 246, 0.1)"
+                        }}
+                        animate={{ rotate: 360 }}
+                        transition={{ 
+                          duration: 2, 
+                          repeat: Infinity, 
+                          ease: "linear" 
+                        }}
+                      />
+                      
+                      {/* Avatar image */}
+                      <div className="relative z-10 rounded-full overflow-hidden" style={{ width: "100px", height: "100px" }}>
+                        <Image
+                          width={100}
+                          height={100}
+                          src={badgePreviewUrl}
+                          alt="Avatar Preview"
+                          priority
+                          className="object-contain rounded-full"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Blended Badge for Printing */}
