@@ -29,10 +29,10 @@ import { qrCodeToBase64 } from "@/lib/qrUtils";
 
 // Define form schema
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  name: z.string().min(1, { message: "Name must be at least 1 characters" }),
   last_name: z
     .string()
-    .min(2, { message: "Last name must be at least 2 characters" }),
+    .min(1, { message: "Last name must be at least 1 characters" }),
   company: z.string().min(1, { message: "Company is required" }),
   position: z.string().min(1, { message: "Position is required" }),
   email: z.string().email({ message: "Invalid email address" }),
