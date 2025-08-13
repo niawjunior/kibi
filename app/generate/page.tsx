@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,9 +22,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createVisitor } from "@/lib/db";
+import { createVisitor, uploadQrImage } from "@/lib/db";
 import { UserProfile } from "@/components/user-profile";
 import { User } from "@/lib/supabase";
+import { qrCodeToBase64 } from "@/lib/qrUtils";
 
 // Define form schema
 const formSchema = z.object({
@@ -47,6 +48,50 @@ export default function GenerateQRPage() {
   const [visitorRef, setVisitorRef] = useState<string | null>(null);
   const [registeredUser, setRegisteredUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
+  const qrCodeRef = useRef<HTMLDivElement>(null);
+
+  // Effect to handle QR code image generation after QR code is rendered
+  useEffect(() => {
+    const generateQrImage = async () => {
+      if (qrCodeData && qrCodeRef.current && visitorRef) {
+        try {
+          // Wait a moment for the QR code to render completely
+          setTimeout(async () => {
+            // Convert QR code to base64 image
+            const base64Image = await qrCodeToBase64(
+              qrCodeRef as React.RefObject<HTMLDivElement>
+            );
+
+            if (base64Image) {
+              // Upload QR image to storage bucket
+              const uploadedUrl = await uploadQrImage(base64Image, visitorRef);
+
+              if (uploadedUrl) {
+                setQrImageUrl(uploadedUrl);
+
+                // Update visitor record with QR image URL
+                await fetch("/api/users/update-qr-url", {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    ref: visitorRef,
+                    qrUrl: uploadedUrl,
+                  }),
+                });
+              }
+            }
+          }, 500);
+        } catch (error) {
+          console.error("Error generating QR image:", error);
+        }
+      }
+    };
+
+    generateQrImage();
+  }, [qrCodeData, visitorRef]);
 
   // Initialize form
   const form = useForm<FormValues>({
@@ -66,6 +111,7 @@ export default function GenerateQRPage() {
     setIsSubmitting(true);
     setError(null);
     setRegisteredUser(null); // Reset registered user when generating new QR
+    setQrImageUrl(null); // Reset QR image URL
 
     try {
       // Generate a unique reference ID for the visitor
@@ -75,10 +121,10 @@ export default function GenerateQRPage() {
       setVisitorRef(ref);
 
       // Create the QR code data (URL that will be used for registration)
-      const qrUrl = `${window.location.origin}/register?id=${ref}`;
+      const qrUrl = `https://kibi.vercel.app/register?id=${ref}`;
       setQrCodeData(qrUrl);
 
-      // Save visitor data to Supabase
+      // Save visitor data to Supabase first without QR URL
       await createVisitor({
         id: uuidv4(),
         ref: ref,
@@ -86,7 +132,11 @@ export default function GenerateQRPage() {
         event_id: "00000000-0000-0000-0000-000000000001", // Default event ID
         registered: false,
         photo_url: null,
+        qr_url: null, // Will be updated after QR image is generated
       });
+
+      // We need to wait for the QR code to be rendered before converting to image
+      // This will be handled in a useEffect after the QR code is displayed
     } catch (err) {
       console.error("Error generating QR code:", err);
       setError("Failed to generate QR code. Please try again.");
@@ -245,12 +295,13 @@ export default function GenerateQRPage() {
                 </div>
               ) : registeredUser ? (
                 <div className="w-full space-y-6">
-                  {/* Display registered user information with photo and badge */}
+                  {/* Display registered user information with photo, badge and QR code */}
                   <UserProfile
                     user={registeredUser}
                     photoUrl={registeredUser.photo_url}
                     badgeUrl={registeredUser.badge_url}
                     showBadge={true}
+                    showQr={true}
                   />
 
                   {/* Display larger badge if available */}
@@ -284,8 +335,16 @@ export default function GenerateQRPage() {
                 </div>
               ) : (
                 <>
-                  <div className="bg-white p-4 rounded-md mb-4">
-                    <QRCode value={qrCodeData} size={200} />
+                  <div className="bg-white p-4 rounded-md mb-4" ref={qrCodeRef}>
+                    {qrImageUrl ? (
+                      <img
+                        src={qrImageUrl}
+                        alt="QR Code"
+                        className="w-[200px] h-[200px]"
+                      />
+                    ) : (
+                      <QRCode value={qrCodeData} size={200} />
+                    )}
                   </div>
 
                   <p className="text-center mb-4">

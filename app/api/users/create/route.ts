@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
       registered: visitorData.registered || false,
       photo_url: visitorData.photo_url || null,
+      qr_url: visitorData.qr_url || null,
     };
 
     // Insert into Supabase

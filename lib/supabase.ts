@@ -33,4 +33,5 @@ export interface User {
   photo_url?: string;
   badge_url?: string;
   card_url?: string;
+  qr_url?: string;
 }

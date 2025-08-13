@@ -263,6 +263,7 @@ export default function VisitorsPage() {
                     <TableHead>Status</TableHead>
                     <TableHead>Badge</TableHead>
                     <TableHead>Card</TableHead>
+                    <TableHead>QR Code</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -426,6 +427,46 @@ export default function VisitorsPage() {
                             >
                               <ImageIcon className="h-3 w-3" />
                               No Card
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {visitor.qr_url ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <motion.div
+                                    className="relative h-12 w-12 rounded-md overflow-hidden border border-primary/20 shadow-sm"
+                                    whileHover={{ scale: 1.05 }}
+                                    transition={{
+                                      type: "spring",
+                                      stiffness: 400,
+                                      damping: 10,
+                                    }}
+                                  >
+                                    <Image
+                                      onClick={() =>
+                                        window.open(visitor.qr_url)
+                                      }
+                                      src={visitor.qr_url}
+                                      alt={`${visitor.name}'s QR code`}
+                                      fill
+                                      className="object-contain cursor-pointer"
+                                    />
+                                  </motion.div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Click to view full QR code</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="flex items-center gap-1 border-muted-foreground/20"
+                            >
+                              <ImageIcon className="h-3 w-3" />
+                              No QR Code
                             </Badge>
                           )}
                         </TableCell>

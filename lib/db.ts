@@ -104,6 +104,7 @@ export async function createVisitor(visitorData: {
   event_id: string;
   registered: boolean;
   photo_url: string | null;
+  qr_url?: string | null;
 }): Promise<User | null> {
   try {
     // Log the request for debugging
@@ -199,6 +200,46 @@ export async function uploadBadgeImage(
     return data.url;
   } catch (error) {
     console.error("Error uploading badge:", error);
+    return null;
+  }
+}
+
+/**
+ * Upload QR image to Supabase storage and return the public URL
+ * @param base64Image - Base64 encoded image data
+ * @param userRef - User reference ID for filename
+ * @returns Public URL of the uploaded image or null if failed
+ */
+export async function uploadQrImage(
+  base64Image: string,
+  userRef: string
+): Promise<string | null> {
+  try {
+    // Check if the image is already a URL (not base64)
+    if (base64Image.startsWith("http")) {
+      return base64Image; // Return the URL as is
+    }
+
+    const response = await fetch('/api/storage/upload-qr', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        base64Image,
+        userRef,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error uploading QR image: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    console.error("Error uploading QR image:", error);
     return null;
   }
 }

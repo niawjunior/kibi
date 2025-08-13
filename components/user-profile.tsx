@@ -19,6 +19,7 @@ interface UserProfileProps {
   photoUrl?: string;
   badgeUrl?: string;
   showBadge?: boolean;
+  showQr?: boolean;
 }
 
 export function UserProfile({
@@ -26,10 +27,12 @@ export function UserProfile({
   photoUrl,
   badgeUrl,
   showBadge = false,
+  showQr = false,
 }: UserProfileProps) {
   console.log("user", user);
   console.log("photoUrl", photoUrl);
   console.log("badgeUrl", badgeUrl);
+  console.log("qrUrl", user.qr_url);
   return (
     <div className="space-y-4">
       <div className="flex justify-center gap-6">
@@ -71,6 +74,20 @@ export function UserProfile({
                 </AvatarFallback>
               )}
             </Avatar>
+          </div>
+        )}
+        
+        {/* QR Code Preview */}
+        {showQr && user.qr_url && (
+          <div className="flex flex-col items-center">
+            <p className="text-sm text-muted-foreground mb-2">QR Code</p>
+            <div className="h-24 w-24 bg-white p-1 rounded-md overflow-hidden">
+              <img
+                className="h-full w-full object-contain"
+                src={user.qr_url}
+                alt="QR Code"
+              />
+            </div>
           </div>
         )}
       </div>
