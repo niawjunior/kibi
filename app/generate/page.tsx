@@ -36,7 +36,7 @@ const formSchema = z.object({
   company: z.string().min(1, { message: "Company is required" }),
   position: z.string().min(1, { message: "Position is required" }),
   email: z.string().email({ message: "Invalid email address" }),
-  phone: z.string().min(5, { message: "Phone number is required" }),
+  phone: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;

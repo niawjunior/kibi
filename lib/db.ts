@@ -7,12 +7,16 @@ import { User } from "./supabase";
  */
 export async function getUserByRef(ref: string): Promise<User | null> {
   try {
-    const response = await fetch(`/api/users/get-by-ref?ref=${encodeURIComponent(ref)}`);
-    
+    const response = await fetch(
+      `/api/users/get-by-ref?ref=${encodeURIComponent(ref)}`
+    );
+
     if (!response.ok) {
-      throw new Error(`Error fetching user: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Error fetching user: ${response.status} ${response.statusText}`
+      );
     }
-    
+
     const data = await response.json();
     return data.user as User;
   } catch (error) {
@@ -35,10 +39,10 @@ export async function updateUserRegistration(
   cardUrl?: string
 ): Promise<User | null> {
   try {
-    const response = await fetch('/api/users/update-registration', {
-      method: 'PUT',
+    const response = await fetch("/api/users/update-registration", {
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         ref,
@@ -49,7 +53,9 @@ export async function updateUserRegistration(
     });
 
     if (!response.ok) {
-      throw new Error(`Error updating user registration: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Error updating user registration: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
@@ -67,12 +73,16 @@ export async function updateUserRegistration(
  */
 export async function getUsersByEvent(eventId: string): Promise<User[]> {
   try {
-    const response = await fetch(`/api/users/get-by-event?eventId=${encodeURIComponent(eventId)}`);
-    
+    const response = await fetch(
+      `/api/users/get-by-event?eventId=${encodeURIComponent(eventId)}`
+    );
+
     if (!response.ok) {
-      throw new Error(`Error fetching users by event: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Error fetching users by event: ${response.status} ${response.statusText}`
+      );
     }
-    
+
     const data = await response.json();
     return data.users as User[];
   } catch (error) {
@@ -100,7 +110,7 @@ export async function createVisitor(visitorData: {
   company: string;
   position: string;
   email: string;
-  phone: string;
+  phone?: string;
   event_id: string;
   registered: boolean;
   photo_url: string | null;
@@ -114,17 +124,20 @@ export async function createVisitor(visitorData: {
       email: visitorData.email,
     });
 
-    const response = await fetch('/api/users/create', {
-      method: 'POST',
+    const response = await fetch("/api/users/create", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(visitorData),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || `Error creating visitor: ${response.status} ${response.statusText}`);
+      throw new Error(
+        errorData.error ||
+          `Error creating visitor: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
@@ -140,10 +153,10 @@ export async function uploadUserPhoto(
   userRef: string
 ): Promise<string | null> {
   try {
-    const response = await fetch('/api/storage/upload-photo', {
-      method: 'POST',
+    const response = await fetch("/api/storage/upload-photo", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         base64Image,
@@ -153,7 +166,10 @@ export async function uploadUserPhoto(
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || `Error uploading photo: ${response.status} ${response.statusText}`);
+      throw new Error(
+        errorData.error ||
+          `Error uploading photo: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
@@ -180,10 +196,10 @@ export async function uploadBadgeImage(
       return base64Image; // Return the URL as is
     }
 
-    const response = await fetch('/api/storage/upload-badge', {
-      method: 'POST',
+    const response = await fetch("/api/storage/upload-badge", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         base64Image,
@@ -193,7 +209,10 @@ export async function uploadBadgeImage(
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || `Error uploading badge: ${response.status} ${response.statusText}`);
+      throw new Error(
+        errorData.error ||
+          `Error uploading badge: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
@@ -220,10 +239,10 @@ export async function uploadQrImage(
       return base64Image; // Return the URL as is
     }
 
-    const response = await fetch('/api/storage/upload-qr', {
-      method: 'POST',
+    const response = await fetch("/api/storage/upload-qr", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         base64Image,
@@ -233,7 +252,10 @@ export async function uploadQrImage(
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || `Error uploading QR image: ${response.status} ${response.statusText}`);
+      throw new Error(
+        errorData.error ||
+          `Error uploading QR image: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
