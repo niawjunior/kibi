@@ -33,7 +33,7 @@ export default function Header() {
             Generate
           </Link>
 
-          <Link
+          {/* <Link
             href="/visitors"
             className={`relative px-2 py-1 text-sm text-white font-medium transition-colors`}
           >
@@ -45,7 +45,7 @@ export default function Header() {
               transition={{ duration: 0.2 }}
             />
             Visitors
-          </Link>
+          </Link> */}
         </nav>
       </div>
     </header>
