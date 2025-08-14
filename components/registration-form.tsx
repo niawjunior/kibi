@@ -727,7 +727,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                               >
                                 {/* Glassmorphism overlay */}
                                 <motion.div
-                                  className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-pink-500/10 z-10 rounded-lg backdrop-blur-[1px] "
+                                  className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-pink-500/10 z-10 rounded-lg backdrop-blur-[1px] scale-70"
                                   animate={{
                                     opacity: [0.4, 0.6, 0.4],
                                     background: [

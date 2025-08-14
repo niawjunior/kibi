@@ -12,7 +12,7 @@ import {
 import { User } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building, Mail, Briefcase, Tag, Phone, UserCheck } from "lucide-react";
+import { Building, Briefcase, Tag, UserCheck } from "lucide-react";
 
 interface UserProfileProps {
   user: User;
@@ -29,10 +29,6 @@ export function UserProfile({
   showBadge = false,
   showQr = false,
 }: UserProfileProps) {
-  console.log("user", user);
-  console.log("photoUrl", photoUrl);
-  console.log("badgeUrl", badgeUrl);
-  console.log("qrUrl", user.qr_url);
   return (
     <div className="space-y-4">
       <div className="flex justify-center gap-6">
@@ -103,10 +99,10 @@ export function UserProfile({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3">
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
               <span className="text-sm">{user.email}</span>
-            </div>
+            </div> */}
 
             <div className="flex items-center">
               <Building className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -117,11 +113,11 @@ export function UserProfile({
               <Briefcase className="h-4 w-4 mr-2 text-muted-foreground" />
               <span className="text-sm">{user.position}</span>
             </div>
-
+            {/* 
             <div className="flex items-center">
               <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
               <span className="text-sm">{user.phone}</span>
-            </div>
+            </div> */}
 
             <div className="flex items-center">
               <Tag className="h-4 w-4 mr-2 text-muted-foreground" />
