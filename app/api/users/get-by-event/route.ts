@@ -14,11 +14,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Query Supabase for users in this event
+    // Query Supabase for users in this event, sorted by updated_at descending
     const { data, error } = await supabase
       .from("users")
       .select("*")
-      .eq("event_id", eventId);
+      .eq("event_id", eventId)
+      .order("updated_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching users by event:", error);

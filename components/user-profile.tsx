@@ -76,7 +76,7 @@ export function UserProfile({
             </Avatar>
           </div>
         )}
-        
+
         {/* QR Code Preview */}
         {showQr && user.qr_url && (
           <div className="flex flex-col items-center">

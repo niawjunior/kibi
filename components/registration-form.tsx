@@ -56,6 +56,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
   const [isBadgeLoading, setIsBadgeLoading] = useState(false);
   const [isPhotoLoading, setIsPhotoLoading] = useState(false);
   const [blendedBadgeUrl, setBlendedBadgeUrl] = useState<string | null>(null);
+  const [printUrl, setPrintUrl] = useState<string | null>(null);
   const [isBlendedBadgeLoading, setIsBlendedBadgeLoading] = useState(false);
   const [selectedAvatarStyle, setSelectedAvatarStyle] =
     useState<AvatarStyle>("photo-shoot");
@@ -135,13 +136,18 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
 
         // Generate a blended badge image for printing (combining template and photo)
         setIsBlendedBadgeLoading(true);
-        const blendedBadgeUrl = await generateBlendedBadge(user.badge_url, {
+        const badgeResult = await generateBlendedBadge(user.badge_url, {
           name: user.name,
           last_name: user.last_name,
           company: user.company,
           position: user.position,
         });
-        setBlendedBadgeUrl(blendedBadgeUrl);
+        console.log("Badge result:", badgeResult);
+
+        if (badgeResult) {
+          setBlendedBadgeUrl(badgeResult.displayUrl);
+          setPrintUrl(badgeResult.printUrl);
+        }
         setIsBlendedBadgeLoading(false);
 
         setCurrentStep("preview");
@@ -169,7 +175,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
         // Generate blended badge for printing using Canvas
         // Convert base64 to data URL for the blended badge generation
         setIsBlendedBadgeLoading(true);
-        const blendedBadgeUrl = await generateBlendedBadge(
+        const badgeResult = await generateBlendedBadge(
           `data:image/png;base64,${badgeBase64}`,
           {
             name: user.name,
@@ -178,7 +184,11 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
             position: user.position,
           }
         );
-        setBlendedBadgeUrl(blendedBadgeUrl);
+
+        if (badgeResult) {
+          setBlendedBadgeUrl(badgeResult.displayUrl);
+          setPrintUrl(badgeResult.printUrl);
+        }
         setIsBlendedBadgeLoading(false);
         setCurrentStep("preview");
       } else {
@@ -206,6 +216,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
       // Upload badge image to storage if we have a badge preview
       let badgeUrl: string | undefined = undefined;
       let cardUrl: string | undefined = undefined;
+      let printImageUrl: string | undefined = undefined;
 
       if (badgePreviewUrl) {
         const uploadedBadgeUrl = await uploadBadgeImage(
@@ -237,13 +248,31 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
         }
       }
 
+      // Upload print image (rotated) if available
+      if (printUrl) {
+        console.log("Uploading print image:", printUrl);
+        // Use the same upload function with a different prefix for print image
+        const uploadedPrintUrl = await uploadBadgeImage(
+          printUrl,
+          `${user.ref}-print`
+        );
+        if (uploadedPrintUrl) {
+          printImageUrl = uploadedPrintUrl;
+        } else {
+          console.warn(
+            "Failed to upload print image, continuing with registration"
+          );
+        }
+      }
+
       // The photoUrl is now either a Supabase storage URL or base64 data
       // updateUserRegistration will save this URL to the database
       const updatedUser = await updateUserRegistration(
         user.ref,
         photoUrl,
         badgeUrl,
-        cardUrl
+        cardUrl,
+        printImageUrl
       );
 
       if (!updatedUser) {
@@ -619,30 +648,33 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                   <div className="flex justify-center">
                     <div className="relative">
                       {/* Rotating border effect */}
-                      <motion.div 
+                      <motion.div
                         className="absolute inset-0 rounded-full z-0"
-                        style={{ 
-                          width: "110px", 
-                          height: "110px", 
-                          top: "-5px", 
+                        style={{
+                          width: "110px",
+                          height: "110px",
+                          top: "-5px",
                           left: "-5px",
                           border: "2px solid transparent",
                           borderRadius: "50%",
                           borderTopColor: "#3b82f6",
                           borderRightColor: "rgba(59, 130, 246, 0.6)",
                           borderBottomColor: "rgba(59, 130, 246, 0.3)",
-                          borderLeftColor: "rgba(59, 130, 246, 0.1)"
+                          borderLeftColor: "rgba(59, 130, 246, 0.1)",
                         }}
                         animate={{ rotate: 360 }}
-                        transition={{ 
-                          duration: 2, 
-                          repeat: Infinity, 
-                          ease: "linear" 
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "linear",
                         }}
                       />
-                      
+
                       {/* Avatar image */}
-                      <div className="relative z-10 rounded-full overflow-hidden" style={{ width: "100px", height: "100px" }}>
+                      <div
+                        className="relative z-10 rounded-full overflow-hidden"
+                        style={{ width: "100px", height: "100px" }}
+                      >
                         <Image
                           width={100}
                           height={100}

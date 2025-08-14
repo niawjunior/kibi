@@ -55,31 +55,26 @@ export const generateBlendedBadge = async (
     company?: string;
     position?: string;
   }
-) => {
+): Promise<{ displayUrl: string; printUrl: string } | null> => {
   try {
-    // Create a canvas element
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("Could not get canvas context");
-    }
+    // 1) Base canvas (your original layout, landscape)
+    const base = document.createElement("canvas");
+    const bctx = base.getContext("2d");
+    if (!bctx) throw new Error("Could not get base canvas context");
 
-    // Set canvas dimensions
-    canvas.width = 2000;
-    canvas.height = 600;
+    base.width = 1519;
+    base.height = 482;
 
-    // Load the badge template image
-    const templateImage = document.createElement("img");
+    // Load images
+    const templateImage = new Image();
     templateImage.crossOrigin = "anonymous";
 
-    // Load the user photo
-    const userPhoto = document.createElement("img");
+    const userPhoto = new Image();
     userPhoto.crossOrigin = "anonymous";
 
-    // Wait for both images to load
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       templateImage.onload = () => {
-        userPhoto.onload = resolve;
+        userPhoto.onload = () => resolve();
         userPhoto.onerror = () =>
           reject(new Error("Failed to load user photo"));
         userPhoto.src = photoUrl;
@@ -89,67 +84,55 @@ export const generateBlendedBadge = async (
       templateImage.src = "/badge-template.png";
     });
 
-    // Draw the template first
-    ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+    // Draw template
+    bctx.imageSmoothingEnabled = true;
+    bctx.drawImage(templateImage, 0, 0, base.width, base.height);
 
-    // Draw the user photo on top
-    const photoWidth = 500;
-    const photoHeight = 500;
-    const photoX = canvas.width - photoWidth - 72;
-    const photoY = (canvas.height - photoHeight) / 2;
+    // Draw centered user photo
+    const photoWidth = 300;
+    const photoHeight = 300;
+    const photoX = (base.width - photoWidth) / 2;
+    const photoY = (base.height - photoHeight) / 2;
+    bctx.drawImage(userPhoto, photoX, photoY, photoWidth, photoHeight);
 
-    ctx.drawImage(userPhoto, photoX, photoY, photoWidth, photoHeight);
-
-    // Add text to the badge
-    if (userData) {
-      // Configure text styling
-      ctx.fillStyle = "#ffffff";
-      ctx.textBaseline = "top";
-
-      // Draw the user name center
-      if (userData.name) {
-        ctx.font = "bold 80px Prompt";
-        ctx.fillStyle = "#ffffff";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
-        ctx.fillText(
-          userData?.name?.toUpperCase() || "",
-          canvas.width / 2,
-          canvas.height / 2
-        );
-
-        // Add position below the name
-        if (userData.position) {
-          ctx.font = "bold 40px Prompt";
-          ctx.fillStyle = "#ffffff";
-          ctx.textBaseline = "middle";
-          ctx.textAlign = "center";
-          ctx.fillText(
-            userData.position.toUpperCase() || "",
-            canvas.width / 2,
-            canvas.height / 2 + 100
-          );
-        }
-
-        // Add company name below the position
-        if (userData.company) {
-          ctx.font = "bold 40px Prompt";
-          ctx.fillStyle = "#ffffff";
-          ctx.textBaseline = "middle";
-          ctx.textAlign = "center";
-          ctx.fillText(
-            `( ${userData.company || ""} )`,
-            canvas.width / 2,
-            canvas.height / 2 + 200
-          );
-        }
-      }
+    // Add text
+    if (userData?.name) {
+      bctx.fillStyle = "#350A7F";
+      bctx.textBaseline = "top";
+      bctx.textAlign = "center";
+      bctx.font = "bold 24px Prompt";
+      const textX = base.width / 2;
+      const textY = photoY + photoHeight + 40;
+      bctx.fillText(
+        `${userData.name.toUpperCase()} ${
+          userData.last_name?.[0]?.toUpperCase() ?? ""
+        }`,
+        textX,
+        textY
+      );
     }
 
-    // Convert canvas to data URL
-    const blendedImageUrl = canvas.toDataURL("image/png");
-    return blendedImageUrl;
-  } catch (err: any) {
+    // 2) Rotate the composed image 90° clockwise and export that
+    const rotated = document.createElement("canvas");
+    const rctx = rotated.getContext("2d");
+    if (!rctx) throw new Error("Could not get rotated canvas context");
+
+    // Swap dimensions
+    rotated.width = base.height; // 482
+    rotated.height = base.width; // 1519
+
+    // Move origin to the right edge of the rotated canvas, rotate, then draw
+    rctx.imageSmoothingEnabled = true;
+    rctx.translate(rotated.width, 0);
+    rctx.rotate(Math.PI / 2); // 90 deg clockwise
+    rctx.drawImage(base, 0, 0); // draws the entire base canvas
+
+    // Generate both display (non-rotated) and print (rotated) versions
+    const displayUrl = base.toDataURL("image/png");
+    const printUrl = rotated.toDataURL("image/png");
+    
+    return { displayUrl, printUrl };
+  } catch (err) {
     console.error("Error generating blended badge:", err);
     return null;
   }

@@ -14,7 +14,7 @@ const openai = new OpenAI({
  */
 function getAvatarPrompt(style: AvatarStyle): string {
   const basePrompt =
-    "Convert the provided portrait into a high-quality Keep the likeness and recognizable features.\nPlace the subject inside a perfect circular crop and must no stroke or border.\nMake the background fully transparent outside the portrait.\nNo text, no extra elements, only the single character's face and shoulders inside the circle.";
+    "Convert the provided portrait into a high-quality Keep the likeness and recognizable features.\nPlace the subject inside a perfect circular crop and must no stroke or border or shadow.\nMake the background fully transparent outside the portrait.\nNo text, no extra elements, only the single character's face and shoulders inside the circle.";
 
   switch (style) {
     case "photo-shoot":
@@ -100,10 +100,14 @@ export async function POST(request: NextRequest) {
     });
 
     // Return the base64 image data
-    if (response.data && response.data.length > 0 && response.data[0].b64_json) {
-      return NextResponse.json({ 
-        success: true, 
-        badge: response.data[0].b64_json 
+    if (
+      response.data &&
+      response.data.length > 0 &&
+      response.data[0].b64_json
+    ) {
+      return NextResponse.json({
+        success: true,
+        badge: response.data[0].b64_json,
       });
     } else {
       return NextResponse.json(

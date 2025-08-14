@@ -36,7 +36,8 @@ export async function updateUserRegistration(
   ref: string,
   photoUrl: string,
   badgeUrl?: string,
-  cardUrl?: string
+  cardUrl?: string,
+  printUrl?: string
 ): Promise<User | null> {
   try {
     const response = await fetch("/api/users/update-registration", {
@@ -49,6 +50,7 @@ export async function updateUserRegistration(
         photoUrl,
         badgeUrl,
         cardUrl,
+        printUrl,
       }),
     });
 

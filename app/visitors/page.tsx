@@ -33,6 +33,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { printBadge } from "@/lib/printer";
 
 export default function VisitorsPage() {
   const [visitors, setVisitors] = useState<User[]>([]);
@@ -100,78 +101,13 @@ export default function VisitorsPage() {
     try {
       // For browser printing, we'll open the badge image in a new tab
       // and trigger the print dialog
-      const printWindow = window.open("", "_blank");
-
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Print Badge - ${visitor.name} ${visitor.last_name}</title>
-              <style>
-                body {
-                  margin: 0;
-                  padding: 0;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100vh;
-                }
-                img {
-                  max-width: 100%;
-                  max-height: 100vh;
-                }
-                @media print {
-                  body {
-                    height: auto;
-                  }
-                }
-              </style>
-            </head>
-            <body>
-              <img src="${
-                visitor.card_url || visitor.badge_url
-              }" alt="Visitor Badge" />
-              <script>
-                window.onload = function() {
-                  setTimeout(function() {
-                    window.print();
-                  }, 500);
-                }
-              </script>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-      }
+      printBadge(visitor.print_url!);
     } catch (err) {
       console.error("Error printing badge:", err);
       alert("Failed to print badge. Please try again.");
     } finally {
       setPrintingVisitor(null);
     }
-  };
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-      },
-    },
   };
 
   return (
@@ -254,6 +190,13 @@ export default function VisitorsPage() {
         >
           <Card className="border-primary/20 shadow-lg overflow-hidden">
             <CardContent className="p-0">
+              <div className="p-4 border-b border-border flex justify-between items-center bg-muted/50">
+                <h3 className="text-lg font-medium">Visitors</h3>
+                <Badge variant="outline" className="font-normal">
+                  {filteredVisitors.length}{" "}
+                  {filteredVisitors.length === 1 ? "visitor" : "visitors"}
+                </Badge>
+              </div>
               <Table className="overflow-hidden">
                 <TableHeader>
                   <TableRow>
@@ -295,9 +238,10 @@ export default function VisitorsPage() {
                           stiffness: 100,
                         }}
                         whileHover={{
-                          backgroundColor: "rgba(255, 255, 255, 0.03)",
+                          backgroundColor: "rgba(99, 102, 241, 0.08)",
+                          scale: 1.005,
                         }}
-                        className="transition-colors"
+                        className="transition-all cursor-pointer hover:shadow-md group"
                         style={{ display: "table-row" }}
                       >
                         <TableCell>
