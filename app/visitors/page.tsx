@@ -101,7 +101,7 @@ export default function VisitorsPage() {
     try {
       // For browser printing, we'll open the badge image in a new tab
       // and trigger the print dialog
-      printBadge(visitor.print_url!);
+      printBadge(visitor.print_url!, true); // Enable rotation
     } catch (err) {
       console.error("Error printing badge:", err);
       alert("Failed to print badge. Please try again.");

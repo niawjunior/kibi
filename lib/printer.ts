@@ -1,4 +1,4 @@
-export const printBadge = (printUrl?: string) => {
+export const printBadge = (printUrl?: string, rotate: boolean = false) => {
   const printWindow = window.open("", "_blank");
 
   if (printWindow) {
@@ -18,50 +18,35 @@ export const printBadge = (printUrl?: string) => {
               background: #fff;
             }
     
-            /* Center the row on the page */
+            /* Center content on the page */
             body {
               display: grid;
               place-items: center;
             }
     
-            /* Two equal slots across the 4in width */
-            .row {
+            /* Container for the badge */
+            .badge-container {
+              width: 4in;
+              height: 6in;
               display: flex;
-              gap: 0.2in;                /* spacing between the two badges */
-              width: 4in;                 /* full page width */
-              height: 6in;                /* full page height */
               justify-content: center;
               align-items: center;
             }
     
-            /* Each slot is half the width (minus the gap) and full height */
-            .slot {
-              width: calc((4in - 0.2in) / 2);
-              height: 6in;
-              display: grid;
-              place-items: center;
-              overflow: hidden;
-              background: #fff;
-            }
-    
-            /* Image scales proportionally to fit inside the slot */
+            /* Image scales proportionally to fit inside the container */
             .badge {
               max-width: 100%;
               max-height: 100%;
               width: auto;
               height: auto;
               display: block;
+              ${rotate ? "transform: rotate(270deg);" : ""}
             }
           </style>
         </head>
         <body>
-          <div class="row">
-            <div class="slot">
-              <img class="badge" src="${printUrl}" alt="Badge" />
-            </div>
-            <div class="slot">
-              <img class="badge" src="${printUrl}" alt="Card" />
-            </div>
+          <div class="badge-container">
+            <img class="badge" src="${printUrl}" alt="Badge" />
           </div>
     
           <script>

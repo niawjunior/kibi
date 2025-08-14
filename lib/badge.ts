@@ -62,8 +62,8 @@ export const generateBlendedBadge = async (
     const bctx = base.getContext("2d");
     if (!bctx) throw new Error("Could not get base canvas context");
 
-    base.width = 1519;
-    base.height = 482;
+    base.width = 992;
+    base.height = 1545;
 
     // Load images
     const templateImage = new Image();
@@ -88,28 +88,47 @@ export const generateBlendedBadge = async (
     bctx.imageSmoothingEnabled = true;
     bctx.drawImage(templateImage, 0, 0, base.width, base.height);
 
-    // Draw centered user photo
+    // Draw two user photos
     const photoWidth = 300;
     const photoHeight = 300;
-    const photoX = (base.width - photoWidth) / 2;
-    const photoY = (base.height - photoHeight) / 2;
-    bctx.drawImage(userPhoto, photoX, photoY, photoWidth, photoHeight);
+    const spacing = 220; // Space between the two photos
 
-    // Add text
+    // Calculate positions for two photos side by side
+    const totalWidth = photoWidth * 2 + spacing;
+    const startX = (base.width - totalWidth) / 2;
+    const centerY = base.height / 2 - 30;
+
+    // First photo (left)
+    const photo1X = startX;
+    const photo1Y = centerY - photoHeight / 2;
+    bctx.drawImage(userPhoto, photo1X, photo1Y, photoWidth, photoHeight);
+
+    // Second photo (right)
+    const photo2X = startX + photoWidth + spacing;
+    const photo2Y = centerY - photoHeight / 2;
+    bctx.drawImage(userPhoto, photo2X, photo2Y, photoWidth, photoHeight);
+
+    // Add text below each photo
     if (userData?.name) {
-      bctx.fillStyle = "#350A7F";
       bctx.textBaseline = "top";
       bctx.textAlign = "center";
       bctx.font = "bold 24px Prompt";
-      const textX = base.width / 2;
-      const textY = photoY + photoHeight + 40;
-      bctx.fillText(
-        `${userData.name.toUpperCase()} ${
-          userData.last_name?.[0]?.toUpperCase() ?? ""
-        }`,
-        textX,
-        textY
-      );
+
+      const nameText = `${userData.name.toUpperCase()} ${
+        userData.last_name?.[0]?.toUpperCase() ?? ""
+      }`;
+
+      // Text below first photo - white color
+      bctx.fillStyle = "#FFFFFF";
+      const text1X = photo1X + photoWidth / 2;
+      const text1Y = photo1Y + photoHeight + 40;
+      bctx.fillText(nameText, text1X, text1Y);
+
+      // Text below second photo - blue color
+      bctx.fillStyle = "#031c72";
+      const text2X = photo2X + photoWidth / 2;
+      const text2Y = photo2Y + photoHeight + 40;
+      bctx.fillText(nameText, text2X, text2Y);
     }
 
     // 2) Rotate the composed image 90° clockwise and export that
@@ -130,7 +149,7 @@ export const generateBlendedBadge = async (
     // Generate both display (non-rotated) and print (rotated) versions
     const displayUrl = base.toDataURL("image/png");
     const printUrl = rotated.toDataURL("image/png");
-    
+
     return { displayUrl, printUrl };
   } catch (err) {
     console.error("Error generating blended badge:", err);
