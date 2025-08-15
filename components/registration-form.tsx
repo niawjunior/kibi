@@ -733,7 +733,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                           src={badgePreviewUrl}
                           alt="Avatar Preview"
                           priority
-                          className="object-contain rounded-full min-w-[200px]"
+                          className="object-contain rounded-full min-w-[100px]"
                         />
                       </div>
                     </div>
