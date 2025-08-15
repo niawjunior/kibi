@@ -24,6 +24,7 @@ import {
   UserIcon,
   Building2,
   Briefcase,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -33,6 +34,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { printBadge } from "@/lib/printer";
 
 export default function VisitorsPage() {
@@ -42,6 +49,10 @@ export default function VisitorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [printingVisitor, setPrintingVisitor] = useState<string | null>(null);
+  const [selectedQrUrl, setSelectedQrUrl] = useState<string | null>(null);
+  const [selectedVisitorName, setSelectedVisitorName] = useState<string | null>(
+    null
+  );
 
   // Default event ID - in a real app, this might come from a context or URL parameter
   const eventId = "00000000-0000-0000-0000-000000000001";
@@ -112,6 +123,30 @@ export default function VisitorsPage() {
 
   return (
     <>
+      {/* QR Code Dialog */}
+      <Dialog
+        open={!!selectedQrUrl}
+        onOpenChange={(open: boolean) => !open && setSelectedQrUrl(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{selectedVisitorName}'s QR Code</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center p-4">
+            {selectedQrUrl && (
+              <div className="relative w-64 h-64">
+                <Image
+                  src={selectedQrUrl}
+                  alt="QR Code"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Header />
 
       <motion.div
@@ -213,7 +248,7 @@ export default function VisitorsPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">
+                      <TableCell colSpan={8} className="text-center py-8">
                         <div className="flex justify-center items-center">
                           <RefreshCw className="h-6 w-6 animate-spin mr-2" />
                           Loading visitors...
@@ -315,6 +350,7 @@ export default function VisitorsPage() {
                                       src={visitor.badge_url}
                                       alt={`${visitor.name}'s badge`}
                                       fill
+                                      loading="lazy"
                                       className="object-cover cursor-pointer"
                                     />
                                   </motion.div>
@@ -355,6 +391,7 @@ export default function VisitorsPage() {
                                       src={visitor.card_url}
                                       alt={`${visitor.name}'s card`}
                                       fill
+                                      loading="lazy"
                                       className="object-cover cursor-pointer"
                                     />
                                   </motion.div>
@@ -389,12 +426,18 @@ export default function VisitorsPage() {
                                     }}
                                   >
                                     <Image
-                                      onClick={() =>
-                                        window.open(visitor.qr_url)
-                                      }
-                                      src={visitor.qr_url}
+                                      onClick={() => {
+                                        if (visitor.qr_url) {
+                                          setSelectedQrUrl(visitor.qr_url);
+                                          setSelectedVisitorName(
+                                            `${visitor.name} ${visitor.last_name}`
+                                          );
+                                        }
+                                      }}
+                                      src={visitor.qr_url || ""}
                                       alt={`${visitor.name}'s QR code`}
                                       fill
+                                      loading="lazy"
                                       className="object-contain cursor-pointer"
                                     />
                                   </motion.div>
