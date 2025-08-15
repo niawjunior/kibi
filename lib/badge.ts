@@ -88,7 +88,7 @@ export const generateBlendedBadge = async (
     bctx.imageSmoothingEnabled = true;
     bctx.drawImage(templateImage, 0, 0, base.width, base.height);
 
-    // Draw two user photos
+    // Draw two user photos as circles
     const photoWidth = 300;
     const photoHeight = 300;
     const spacing = 220; // Space between the two photos
@@ -98,15 +98,40 @@ export const generateBlendedBadge = async (
     const startX = (base.width - totalWidth) / 2;
     const centerY = base.height / 2 - 30;
 
+    // Function to draw circular photo
+    const drawCircularPhoto = (x: number, y: number, width: number, height: number) => {
+      const radius = Math.min(width, height) / 2;
+      const centerX = x + width / 2;
+      const centerY = y + height / 2;
+      
+      // Save the current state
+      bctx.save();
+      
+      // Create circular clipping path
+      bctx.beginPath();
+      bctx.arc(centerX, centerY, radius, 0, Math.PI * 2, true);
+      bctx.closePath();
+      bctx.clip();
+      
+      // Draw the image within the clipping path
+      bctx.drawImage(userPhoto, x, y, width, height);
+      
+      // Restore the context
+      bctx.restore();
+      
+      // No border needed - transparent edges
+      // Removed border code to keep edges transparent
+    };
+
     // First photo (left)
     const photo1X = startX;
     const photo1Y = centerY - photoHeight / 2;
-    bctx.drawImage(userPhoto, photo1X, photo1Y, photoWidth, photoHeight);
+    drawCircularPhoto(photo1X, photo1Y, photoWidth, photoHeight);
 
     // Second photo (right)
     const photo2X = startX + photoWidth + spacing;
     const photo2Y = centerY - photoHeight / 2;
-    bctx.drawImage(userPhoto, photo2X, photo2Y, photoWidth, photoHeight);
+    drawCircularPhoto(photo2X, photo2Y, photoWidth, photoHeight);
 
     // Add text below each photo
     if (userData?.name) {

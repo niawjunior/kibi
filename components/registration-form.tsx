@@ -192,14 +192,58 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
         setIsBlendedBadgeLoading(false);
         setCurrentStep("preview");
       } else {
-        setError("Failed to generate badge preview. Please try again.");
+        console.warn(
+          "Failed to generate badge preview, but allowing to proceed"
+        );
+        setError(
+          "Failed to generate avatar. You can proceed or try again later."
+        );
+        // Still allow proceeding to next step even if generation failed
       }
     } catch (error) {
       console.error("Error generating badge preview:", error);
-      setError("Failed to generate badge preview. Please try again.");
+      setError(
+        "Failed to generate avatar. You can proceed or try again later."
+      );
+      // Still allow proceeding to next step even if generation failed
     } finally {
       setIsBadgeLoading(false);
     }
+  };
+
+  // Proceed to next step even if avatar generation failed
+  const handleProceedWithoutAvatar = () => {
+    // Create a placeholder badge using the photo directly
+    if (photoUrl) {
+      // Set the photo URL as the badge preview URL directly
+      setBadgePreviewUrl(photoUrl);
+
+      // Generate blended badge for printing using the photo directly
+      setIsBlendedBadgeLoading(true);
+      generateBlendedBadge(photoUrl, {
+        name: user.name,
+        last_name: user.last_name,
+        company: user.company,
+        position: user.position,
+      })
+        .then((badgeResult) => {
+          if (badgeResult) {
+            setIsBlendedBadgeLoading(false);
+            setBlendedBadgeUrl(badgeResult.displayUrl);
+            setPrintUrl(badgeResult.printUrl);
+          }
+        })
+        .catch((error) => {
+          console.error("Error generating blended badge:", error);
+          setError(
+            "Failed to generate blended badge, but you can still proceed."
+          );
+          setIsBlendedBadgeLoading(false);
+        });
+    }
+
+    // Proceed to preview step
+    setCurrentStep("preview");
   };
 
   // Handle registration submission
@@ -606,6 +650,14 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                 )}
               </Button>
               <Button
+                variant="secondary"
+                onClick={handleProceedWithoutAvatar}
+                disabled={!photoUrl || isImageLoading || isBadgeLoading}
+                className="w-full"
+              >
+                Continue Without Avatar <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Button
                 variant="outline"
                 onClick={() => setCurrentStep("info")}
                 disabled={isImageLoading || isBadgeLoading}
@@ -672,7 +724,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
 
                       {/* Avatar image */}
                       <div
-                        className="relative z-10 rounded-full overflow-hidden"
+                        className="relative z-10 rounded-full overflow-hidden flex justify-center"
                         style={{ width: "100px", height: "100px" }}
                       >
                         <Image
@@ -681,7 +733,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                           src={badgePreviewUrl}
                           alt="Avatar Preview"
                           priority
-                          className="object-contain rounded-full"
+                          className="object-contain rounded-full min-w-[200px]"
                         />
                       </div>
                     </div>
@@ -727,7 +779,7 @@ export function RegistrationForm({ user }: RegistrationFormProps) {
                               >
                                 {/* Glassmorphism overlay */}
                                 <motion.div
-                                  className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-pink-500/10 z-10 rounded-lg backdrop-blur-[1px] scale-70"
+                                  className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-pink-500/10 z-10 rounded-lg backdrop-blur-[1px] "
                                   animate={{
                                     opacity: [0.4, 0.6, 0.4],
                                     background: [

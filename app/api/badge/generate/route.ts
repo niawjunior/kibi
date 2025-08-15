@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Determine the prompt based on the selected style
     let prompt = "Create a professional headshot avatar";
-    
+
     if (style === "cartoon") {
       prompt = "Create a cartoon style avatar with vibrant colors";
     } else if (style === "sketch") {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     if (name) {
       prompt += ` for ${name}`;
     }
-    
+
     if (company) {
       prompt += ` from ${company}`;
     }
@@ -54,10 +54,10 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     // Get the base64 image data
     const imageData = response.data[0].b64_json;
-    
+
     if (!imageData) {
       return NextResponse.json(
         { error: "Failed to generate badge image: No image data" },

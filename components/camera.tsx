@@ -25,6 +25,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
   const [error, setError] = useState<string | null>(null);
   const [mirrored, setMirrored] = useState(true); // Default to mirrored view (selfie-style)
   const [isUploading, setIsUploading] = useState(false); // Track photo upload status
+  const [countdown, setCountdown] = useState<number | null>(null); // Countdown timer
 
   // Try different camera access methods
   const tryAccessCamera = async (
@@ -134,8 +135,31 @@ export function Camera({ onCapture, userRef }: CameraProps) {
 
   // Capture photo and upload to Supabase if userRef is provided
 
+  // Start countdown timer before taking photo
+  const startCountdown = () => {
+    // Start with 3 seconds
+    setCountdown(3);
+    
+    // Create interval that decrements countdown every second
+    const interval = setInterval(() => {
+      setCountdown(prevCount => {
+        // When countdown reaches 1, clear interval and take photo
+        if (prevCount === 1) {
+          clearInterval(interval);
+          // Delay actual photo capture slightly to allow UI to show "0"
+          setTimeout(() => {
+            capturePhotoNow();
+            setCountdown(null);
+          }, 500);
+          return 0;
+        }
+        return prevCount ? prevCount - 1 : null;
+      });
+    }, 1000);
+  };
+
   // Capture photo and optionally upload to Supabase
-  const capturePhoto = async () => {
+  const capturePhotoNow = async () => {
     if (videoRef.current && canvasRef.current) {
       try {
         // Set uploading state to true at the beginning
@@ -200,6 +224,18 @@ export function Camera({ onCapture, userRef }: CameraProps) {
       }
     }
   };
+  
+  // Wrapper function to start countdown or cancel it
+  const capturePhoto = () => {
+    // If countdown is already active, cancel it
+    if (countdown !== null) {
+      setCountdown(null);
+      return;
+    }
+    
+    // Start countdown
+    startCountdown();
+  };
 
   // Clean up camera on unmount
   useEffect(() => {
@@ -238,7 +274,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
                   onClick={stopCamera}
                   variant="outline"
                   size="icon"
-                  disabled={isUploading}
+                  disabled={isUploading || countdown !== null}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -249,7 +285,7 @@ export function Camera({ onCapture, userRef }: CameraProps) {
                   }}
                   variant="outline"
                   size="icon"
-                  disabled={isUploading}
+                  disabled={isUploading || countdown !== null}
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
@@ -260,11 +296,20 @@ export function Camera({ onCapture, userRef }: CameraProps) {
                   title={
                     mirrored ? "Disable mirror mode" : "Enable mirror mode"
                   }
-                  disabled={isUploading}
+                  disabled={isUploading || countdown !== null}
                 >
                   <ArrowRightLeft />
                 </Button>
               </div>
+              
+              {/* Countdown overlay */}
+              {countdown !== null && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-black/50 rounded-full w-24 h-24 flex items-center justify-center">
+                    <span className="text-white text-4xl font-bold">{countdown}</span>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col px-2 w-full gap-2 justify-center py-2 absolute bottom-2">
                 <Button
@@ -277,6 +322,11 @@ export function Camera({ onCapture, userRef }: CameraProps) {
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Taking photo...
+                    </>
+                  ) : countdown !== null ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Cancel countdown
                     </>
                   ) : (
                     <>
