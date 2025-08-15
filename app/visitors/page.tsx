@@ -380,7 +380,7 @@ export default function VisitorsPage() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <motion.div
-                                    className="relative h-12 w-12 rounded-md overflow-hidden border border-primary/20 shadow-sm"
+                                    className="relative h-12 w-12  overflow-hidden border border-primary/20 shadow-sm"
                                     whileHover={{ scale: 1.05 }}
                                     transition={{
                                       type: "spring",
